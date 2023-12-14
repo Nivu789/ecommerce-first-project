@@ -1,0 +1,207 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Companion-Registration</title>
+  <link rel="stylesheet" href="../../assets/css/register.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  <script src="../../controllers/UserController.js"></script>
+  
+</head>
+<body>
+  <section class="vh-100 bg-image"
+  style="background-image: url('https://mdbcdn.b-cdn.net/img/Photos/new-templates/search-box/img4.webp');">
+  <div class="mask d-flex align-items-center h-100 gradient-custom-3">
+    <div class="container h-100">
+      <div class="row d-flex justify-content-center align-items-center" style="height: 50%;">
+        <div class="col-12 col-md-9 col-lg-7 col-xl-6">
+          <div class="card" style="border-radius: 15px;">
+            <div class="card-body p-5">
+              <h2 class="text-uppercase text-center">Create an account</h2>
+
+              <form method="post" action="">
+
+                <div class="form-outline mb-3">
+                  <input type="text" id="form3Example1cg" class="form-control form-control-lg" name="name" required/>
+                  <label class="form-label" for="form3Example1cg">Your Name</label>
+                </div>
+
+                <div class="form-outline mb-3">
+                  <input type="email" id="email" class="form-control form-control-lg" name="email" pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$" required/>
+                  <label class="form-label" for="form3Example3cg">Your Email</label>
+                </div>
+
+                <div class="form-outline mb-3">
+                  <input type="text" id="form3Example4cg" class="form-control form-control-lg" name="phone" pattern="[0-9]{10}" required/>
+                  <label class="form-label" for="form3Example4cg">Phone</label>
+                </div>
+
+          
+
+                <div class="form-outline mb-3">
+                  <input type="password" id="form3Example4cg" class="form-control form-control-lg" name="password" required/>
+                  <label class="form-label" for="form3Example4cg">Password (Must be 8 characters long, should contain alteast 1 special character and atleat one uppercase character)</label>
+                  <span id="passwordError" class="error-message"></span>
+                </div>
+
+                <div class="form-outline mb-4">
+                  <input type="password" id="form3Example4cdg" class="form-control form-control-lg" name="cpassword" required/>
+                  <label class="form-label" for="form3Example4cdg">Repeat your password</label>
+                  <span id="cpasswordError" class="error-message"></span>
+                </div>
+
+                
+                <div class="d-flex justify-content-center">
+                  <button type="submit"
+                    class="btn btn-success btn-block btn-lg gradient-custom-4 text-body">Register</button>
+                </div>
+                
+                
+                <p class="text-center text-muted mt-5 mb-0">Got a referral code? <a href="#coupon"
+                  class="fw-bold text-body" href="" data-bs-toggle="collapse" class="collapsed"
+                  aria-expanded="false"><u>Click here to claim the reward</u></a></p>
+
+                  <div class="panel-collapse collapse coupon_form " id="coupon">
+                    <div class="panel-body">
+                        <p class="mb-30 font-sm">If you have a coupon code, please apply it below.</p>
+                        <form method="">
+                            <div class="form-group">
+                                <input type="text" placeholder="Enter Coupon Code..." name="couponCode"
+                                    id="refCode">
+                            </div>
+                            <div class="form-group">
+                                <button class="btn  btn-md" id="applybutton" name="login"
+                                    onclick="applyReferral(event)">Apply Coupon</button>
+                            </div>
+                            <p id="errorMessage"></p>
+                        </form>
+                    </div>
+                </div>
+                <script>
+                  function applyReferral(event){
+                    event.preventDefault();
+                    console.log("Working")
+                    fetch('/applyreferral',{
+                      method:"POST",
+                      headers:{
+                        'Content-Type':'application/json'
+                      },
+                      body:JSON.stringify({
+                        ref_code:document.getElementById('refCode').value
+                      })
+                    }).then(res=>{
+                      if(res.ok){
+                        console.log("Success")
+                        return res.json()
+                      }else{
+                        console.log("Error")
+                      }
+                    }).then(data=>{
+                      console.log(data)
+                      if(data.error){
+                        document.getElementById('errorMessage').textContent = `${data.error}`
+                      }else if(data.success){
+                        document.getElementById('errorMessage').textContent = `${data.success}`
+                      }
+                    })
+                    .catch(error=>{
+                      console.log(error)
+                    })
+                  }
+                </script>
+                <p class="text-center text-muted mt-5 mb-0">Have already an account? <a href="/"
+                    class="fw-bold text-body"><u>Login here</u></a></p>
+              </form>
+              <div class="col-lg-6">
+                  
+                  
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="../../functions/swalRelated.js"></script>
+<!-- <script src="../../assets/js/userFunctions.js"></script> -->
+<%if(message==='0'){%>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      Swal.fire({
+        title: 'Error!',
+        text: 'You already got an account',
+        icon: 'error',
+        showConfirmButton:true,
+        confirmButtonText: '<a href="/">Login to your account</a>',
+        confirmButtonColor:'#0000'
+      });
+  });
+  </script>
+  <%}%>
+  <%if(message==='1'){%>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+          title: 'Error!',
+          text: "Passwords didn't match",
+          icon: 'error',
+          showConfirmButton:true,
+          confirmButtonText: 'ok',
+          confirmButtonColor:'yellow'
+        });
+    });
+    </script>
+    <%}%>
+    <%if(message==='2'){%>
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          Swal.fire({
+            title: 'Error!',
+            text: 'Invalid Fields',
+            icon: 'error',
+            showConfirmButton:true,
+            confirmButtonText: 'ok',
+            confirmButtonColor:'yellow'
+          });
+      });
+      </script>
+      <%}%>
+      <%if(message==='3'){%>
+        <script>
+          document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+              title: 'Error!',
+              text: "Password didn't meet the requirements",
+              icon: 'error',
+              showConfirmButton:true,
+              confirmButtonText: 'ok',
+              confirmButtonColor:'black'
+            });
+        });
+        </script>
+        <%}%>
+
+        <script src="assets/js/vendor/modernizr-3.6.0.min.js"></script>
+        <script src="assets/js/vendor/jquery-3.6.0.min.js"></script>
+        <script src="assets/js/vendor/jquery-migrate-3.3.0.min.js"></script>
+        <script src="assets/js/vendor/bootstrap.bundle.min.js"></script>
+        <script src="assets/js/plugins/slick.js"></script>
+        <script src="assets/js/plugins/jquery.syotimer.min.js"></script>
+        <script src="assets/js/plugins/wow.js"></script>
+        <script src="assets/js/plugins/jquery-ui.js"></script>
+        <script src="assets/js/plugins/perfect-scrollbar.js"></script>
+        <script src="assets/js/plugins/magnific-popup.js"></script>
+        <script src="assets/js/plugins/select2.min.js"></script>
+        <script src="assets/js/plugins/waypoints.js"></script>
+        <script src="assets/js/plugins/counterup.js"></script>
+        <script src="assets/js/plugins/jquery.countdown.min.js"></script>
+        <script src="assets/js/plugins/images-loaded.js"></script>
+        <script src="assets/js/plugins/isotope.js"></script>
+        <script src="assets/js/plugins/scrollup.js"></script>
+        <script src="assets/js/plugins/jquery.vticker-min.js"></script>
+</body>
+</html>

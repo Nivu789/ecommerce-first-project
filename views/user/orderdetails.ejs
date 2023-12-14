@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/assets/css/orderdetails.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css">
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="description" content="">
+    <meta property="og:title" content="">
+    <meta property="og:type" content="">
+    <meta property="og:url" content="">
+    <meta property="og:image" content="">
+    <!-- Favicon -->
+    <link rel="shortcut icon" type="image/x-icon" href="assets/imgs/theme/favicon.svg">
+    <!-- Template CSS -->
+    <link rel="stylesheet" href="assets/css/maind134.css?v=3.4">
+    
+</head>
+<body>
+    <%-include('navbar.ejs')%>
+    <div class="container">
+        <article class="card">
+            <header class="card-header"> My Orders / Tracking </header>
+            <div class="card-body">
+                <h6>Order ID: OD45345345435</h6>
+                <article class="card">
+                    <div class="card-body row">
+                        <div class="col"> <strong>Estimated Delivery time:</strong> <br><%=orderDetails.orderDate%></div>
+                        <div class="col"> <strong>Shipping BY:</strong> <br> BLUEDART, | <i class="fa fa-phone"></i> +1598675986 </div>
+                        <div class="col"> <strong>Status:</strong> <br> <%=orderDetails.orderStatus%> </div>
+                        <div class="col"> <strong>Tracking #:</strong> <br> BD045903594059 </div>
+                    </div>
+                </article>
+                
+                <div class="track">
+                    <div class="step active"> <span class="icon"> <i class="fa fa-check"></i> </span> <span class="text">Order confirmed</span> </div>
+                    <div class="step active"> <span class="icon"> <i class="fa fa-user"></i> </span> <span class="text"> Picked by courier</span> </div>
+                    <div class="step"> <span class="icon"> <i class="fa fa-truck"></i> </span> <span class="text"> On the way </span> </div>
+                    <div class="step"> <span class="icon"> <i class="fa fa-box"></i> </span> <span class="text">Ready for pickup</span> </div>
+                </div>
+                <form method="post" action="/cancelorder?id=<%=orderDetails._id%>" id="cancelorderform">
+                <hr>
+                <ul class="row">
+            
+                        <%for(j=0;j<orderDetails.products.length;j++){%>
+                            <% const product = orderDetails.products[j]; %>
+                            
+                            <li class="col-md-4">
+                                <figure class="itemside mb-3">
+                                    <div class="aside"><img src="<%= product.productId.image[0] %>" class="img-sm border"></div>
+                                    <figcaption class="info align-self-center">
+                                        <p class="title"><%= product.productId.brand %><br> <%= product.productId.productName %><span>   (<%= product.quantity %>)</span></p> 
+                                    </figcaption>
+                                </figure>
+                            </li>
+                            <%}%>
+                        
+                    
+                    <li>
+                        <table class="table">
+                            <tbody>
+                                <tr>
+                                    <td class="cart_total_label">Shipping</td>
+                                    <td class="cart_total_amount"> <i class="ti-gift mr-5"></i> Free
+                                        Shipping</td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td class="cart_total_label">Total</td>
+                                    <td class="cart_total_amount"><strong><span
+                                                class="font-xl fw-900 text-brand">₹<%= orderDetails.totalAmount %>
+                                                    </span></strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <script>
+                            function cancelOrder(event){ 
+                                event.preventDefault();
+                                const swalWithBootstrapButtons = Swal.mixin({
+                                customClass: {
+                                    confirmButton: "btn btn-success",
+                                    cancelButton: "btn btn-danger"
+                                },
+                                buttonsStyling: false
+                            });
+                            swalWithBootstrapButtons.fire({
+                                title: "Are you sure you want to cancel the order?",
+                                text: "You won't be able to revert this!",
+                                icon: "warning",
+                                showCancelButton: true,
+                                confirmButtonText: "Yes, cancel order!",
+                                cancelButtonText: "No, don't do it!",
+                                reverseButtons: true
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    swalWithBootstrapButtons.fire({
+                                        title: "Order Cancelled!",
+                                        text: "Thank you for shopping",
+                                        icon: "success"
+                                    });
+                                    setTimeout(() => {
+                                        document.getElementById("cancelorderform").submit();
+                                    }, 3000);
+                                    
+                                } else if (
+                                    /* Read more about handling dismissals below */
+                                    result.dismiss === Swal.DismissReason.cancel
+                                ) {
+                                    swalWithBootstrapButtons.fire({
+                                        title: "No changes were done",
+                                        text: "Order was not cancelled :)",
+                                        icon: "error"
+                                    });
+                                }
+                            });
+                            }
+
+                            function returnOrder(event){ 
+                                event.preventDefault();
+                                const swalWithBootstrapButtons = Swal.mixin({
+                                customClass: {
+                                    confirmButton: "btn btn-success",
+                                    cancelButton: "btn btn-danger"
+                                },
+                                buttonsStyling: false
+                            });
+                            swalWithBootstrapButtons.fire({
+                                title: "Are you sure you want to return the order?",
+                                text: "You won't be able to revert this!",
+                                icon: "warning",
+                                showCancelButton: true,
+                                confirmButtonText: "Yes, return order!",
+                                cancelButtonText: "No, don't do it!",
+                                reverseButtons: true
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    swalWithBootstrapButtons.fire({
+                                        title: "Our delivery partners will soon contact you!",
+                                        text: "Thank you for shopping",
+                                        icon: "success"
+                                    });
+                                    setTimeout(() => {
+                                        document.getElementById("cancelorderform").submit();
+                                    }, 3000);
+                                    
+                                } else if (
+                                    /* Read more about handling dismissals below */
+                                    result.dismiss === Swal.DismissReason.cancel
+                                ) {
+                                    swalWithBootstrapButtons.fire({
+                                        title: "No changes were done",
+                                        text: "Order was not returned :)",
+                                        icon: "error"
+                                    });
+                                }
+                            });
+                            }
+                            
+                        </script>
+                    </li>
+                </ul>
+                <hr>
+                <div class="d-flex justify-content-around">
+                    <a href="/account?id=<%=userData._id%>" class="btn btn-warning" data-abc="true"> <i class="fa fa-chevron-left"></i> Back to orders</a>
+                    <%if(orderDetails.orderStatus==='Delivered'){%>
+                        <a href="#" class="btn btn-danger" data-abc="true" style="background-color: brown;" onclick="returnOrder(event)">Return order</a>
+                        <%}else{%>
+                            <a href="#" class="btn btn-danger" data-abc="true" style="background-color: red;" onclick="cancelOrder(event)">Cancel order</a>
+                            <%}%>
+                </div>
+                </form>
+            </div>
+        </article>
+    </div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+</body>
+</html>
