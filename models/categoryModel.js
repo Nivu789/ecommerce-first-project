@@ -13,6 +13,9 @@ const category = mongoose.Schema({
     discountPercentage:{
         type:Number,
         default:0
+    },
+    offerExpiry:{
+        type:Date,
     }
 })
 

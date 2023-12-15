@@ -339,12 +339,16 @@ const getProductDetails = async(req,res) =>{
         //     // Add your task logic here
         // });
         const id = req.query.id;
-        const userId = req.query.user;
+        
+        const email = req.session.email
         const productData = await Product.findOne({_id:id})
-        const userData = await User.findOne({_id:userId})
+        const userData = await User.findOne({email:email})
         const fullProductData = await Product.find({})
+        const userId = userData._id;
+        // const userId = userData._id
+        const wishListData = await Wishlist.findOne({userId:userId})
         if(productData){
-            res.render('product-details',{productData,userData,fullProductData})
+            res.render('product-details',{productData,userData,fullProductData,wishListData})
         }
     } catch (error) {
         console.log(error)
@@ -447,9 +451,11 @@ const loadAccount = async(req,res) =>{
         // const userData = await User.findOne({email:req.session.email})
         const userData = await User.findOne({_id:req.query.id})
         const orderData = await Order.find({userId:userData._id}).populate('products.productId').sort({orderDate:-1})
+        const userId = userData._id
+        const wishListData = await Wishlist.findOne({userId:userId})
     //    console.log(orderData)
         if(userData){
-            res.render(`account`,{userData,orderData})
+            res.render(`account`,{userData,orderData,wishListData})
         }
     } catch (error) {
         console.log(error)
@@ -462,9 +468,11 @@ const getOrderDetails = async(req,res) =>{
         const orderId = req.query.orderid;
         console.log(orderId)
         const userData = await User.findOne({email:req.session.email})
+        const userId = userData._id
+        const wishListData = await Wishlist.findOne({userId:userId})
         const orderDetails = await Order.findOne({_id:orderId}).populate('products.productId');
-    
-            res.render('orderdetails',{orderDetails,userData})
+        const category = await Category.find({is_active:true})
+            res.render('orderdetails',{orderDetails,userData,category,wishListData})
         
         
     } catch (error) {
@@ -478,11 +486,13 @@ const getCart = async(req,res) =>{
         // const id = req.session.userId;
         const email = req.session.email;
         const userData = await User.findOne({email:email});
+        const userId = userData._id
+        const wishListData = await Wishlist.findOne({userId:userId})
         if(userData){
             const fullUserData = await User.findOne({email:email}).populate('cart.productId')
             
             // console.log(fullUserData)
-            res.render('cart',{userData,fullUserData})
+            res.render('cart',{userData,fullUserData,wishListData})
         }else{
             res.redirect('/');
         }
@@ -661,7 +671,8 @@ const getCheckoutProducts = async(req,res) =>{
         const email = req.session.email;
         const userData = await User.findOne({email:email});
         const totalAmount = req.session.totalAmount
-
+        const userId = userData._id
+        const wishListData = await Wishlist.findOne({userId:userId})
         console.log(totalAmount)
         const currentDate = Date.now();
         if(userData){
@@ -690,7 +701,7 @@ const getCheckoutProducts = async(req,res) =>{
               });
               console.log(couponData)
             console.log(fullUserData)
-            res.render('shop-checkout',{userData,fullUserData,couponData})
+            res.render('shop-checkout',{userData,fullUserData,couponData,wishListData})
         }else{
             res.redirect('/');
         }

@@ -19,10 +19,11 @@
     <!-- Template CSS -->
     <link rel="stylesheet" href="assets/css/maind134.css?v=3.4">
     
+    
 </head>
 <body>
     <%-include('navbar.ejs')%>
-    <div class="container">
+    <div class="container" style="margin-bottom: 200px;">
         <article class="card">
             <header class="card-header"> My Orders / Tracking </header>
             <div class="card-body">
@@ -169,13 +170,42 @@
                     <%if(orderDetails.orderStatus==='Delivered'){%>
                         <a href="#" class="btn btn-danger" data-abc="true" style="background-color: brown;" onclick="returnOrder(event)">Return order</a>
                         <%}else{%>
-                            <a href="#" class="btn btn-danger" data-abc="true" style="background-color: red;" onclick="cancelOrder(event)">Cancel order</a>
+                            <%if(orderDetails.orderStatus==='Cancelled'){%>
+                                <h4 style="color: red; margin-top: 18px;">Order Cancelled</h4>
+                                <%}else{%>
+                                    <a href="#" class="btn btn-danger" data-abc="true" style="background-color: red;" onclick="cancelOrder(event)">Cancel order</a>
+                                    <%}%>
+                           
                             <%}%>
                 </div>
                 </form>
             </div>
         </article>
     </div>
+    <script src="assets/js/vendor/modernizr-3.6.0.min.js"></script>
+    <script src="assets/js/vendor/jquery-3.6.0.min.js"></script>
+    <script src="assets/js/vendor/jquery-migrate-3.3.0.min.js"></script>
+    <script src="assets/js/vendor/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/plugins/slick.js"></script>
+    <script src="assets/js/plugins/jquery.syotimer.min.js"></script>
+    <script src="assets/js/plugins/wow.js"></script>
+    <script src="assets/js/plugins/jquery-ui.js"></script>
+    <script src="assets/js/plugins/perfect-scrollbar.js"></script>
+    <script src="assets/js/plugins/magnific-popup.js"></script>
+    <script src="assets/js/plugins/select2.min.js"></script>
+    <script src="assets/js/plugins/waypoints.js"></script>
+    <script src="assets/js/plugins/counterup.js"></script>
+    <script src="assets/js/plugins/jquery.countdown.min.js"></script>
+    <script src="assets/js/plugins/images-loaded.js"></script>
+    <script src="assets/js/plugins/isotope.js"></script>
+    <script src="assets/js/plugins/scrollup.js"></script>
+    <script src="assets/js/plugins/jquery.vticker-min.js"></script>
+    <script src="assets/js/plugins/jquery.theia.sticky.js"></script>
+    <script src="assets/js/plugins/jquery.elevatezoom.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<script src="assets/js/maind134.js?v=3.4"></script>
+    <script src="assets/js/shopd134.js?v=3.4"></script>
+
 </body>
 </html>
