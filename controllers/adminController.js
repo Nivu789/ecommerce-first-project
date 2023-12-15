@@ -4,6 +4,9 @@ const Category = require('../models/categoryModel')
 const Order = require('../models/orderModel')
 const Brand = require('../models/brandModel')
 const Coupon = require('../models/couponModel')
+const sharp = require('sharp');
+const fs = require('fs');
+const fse = require('fs-extra');
 
 //hello
 const getLogin = async(req,res) =>{
@@ -83,8 +86,30 @@ const createProduct = async (req, res) => {
             console.log("white")
             res.render('addproduct',{message:'0',categoryData,brandData})
         }else{
-            const imageUrls = req.files.map((file) => 'uploads/' + file.filename);
+            // const imageUrls = req.files.map((file) => 'uploads/' + file.filename);
 
+            const imagePromises = req.files.map(async (file) => {
+            const imagePath = `uploads/${file.filename}`;
+             const resizedImagePath = `uploads/resized_${file.filename}`;
+             await sharp(imagePath)
+            .resize({ width: 572, height: 572})
+            .toFile(resizedImagePath);
+
+      // Remove the original uploaded image
+            // fs.unlinkSync(imagePath);
+            fse.remove(imagePath, (err) => {
+                if (err) {
+                  console.error(err);
+                } else {
+                  console.log('File deleted successfully');
+                }
+              });
+
+             return resizedImagePath;
+            });
+
+            const resizedImageUrls = await Promise.all(imagePromises);
+            
             const requestedQuantity = parseInt(req.body.quantity, 10);
 
             // Check if requestedQuantity is a valid number and greater than or equal to 0
@@ -99,7 +124,7 @@ const createProduct = async (req, res) => {
             regularPrice: req.body.regularPrice,
             salePrice: req.body.salePrice,
             quantity:quantity,
-            image: imageUrls,
+            image: resizedImageUrls,
             is_active: true
         })
         await product.save();
@@ -138,20 +163,76 @@ const commitProductUpdate = async (req, res) => {
             res.render('editproduct', { message: "0", products:product,categoryData,brandData})
         }else{
             let Newimages = []
-        req.files.forEach((image) => {
-            Newimages.push(
-                image.path
-            )
-        })
+            
+        //     const imagePromises = req.files.map(async (file) => {
+        //         const imagePath = `uploads/${file.filename}`;
+        //          const resizedImagePath = `uploads/resized_${file.filename}`;
+        //          await sharp(imagePath)
+        //         .resize({ width: 572, height: 572})
+        //         .toFile(resizedImagePath);
+    
+        //   // Remove the original uploaded image
+        //         // fs.unlinkSync(imagePath);
+        //         fse.remove(imagePath, (err) => {
+        //             if (err) {
+        //               console.error(err);
+        //             } else {
+        //               console.log('File deleted successfully');
+        //             }
+        //           });
+                  
+        //           req.files.forEach((image) => {
+        //             Newimages.push(
+        //                 // image.path
+        //                 resizedImagePath
+        //             )
+        //         })
+        //         //  return resizedImagePath;
+        //         });
+
+            
+       
 
 
-        Newimages.forEach((image) => {
-            product.image.push(
-                image
+        // Newimages.forEach((image) => {
+        //     product.image.push(image)
+        // })
+        
+        // await product.save()
 
-            )
-        })
-        await product.save()
+        await Promise.all(req.files.map(async (file) => {
+            const imagePath = `uploads/${file.filename}`;
+            const resizedImagePath = `uploads/resized_${file.filename}`;
+          
+            // Resize the image
+            await sharp(imagePath)
+              .resize({ width: 572, height: 572 })
+              .toFile(resizedImagePath);
+          
+            // Remove the original uploaded image
+            // await new Promise((resolve, reject) => {
+            // //   fse.remove(imagePath, (err) => {
+            // //     if (err) {
+            // //       console.error(err);
+            // //       reject(err);
+            // //     } else {
+            // //       console.log('File deleted successfully');
+            // //       resolve();
+            // //     }
+            // //   });
+            // });
+          
+            // Push the resized image path to Newimages array
+            Newimages.push(resizedImagePath);
+          }));
+          
+          // Now that all asynchronous operations are completed, proceed with further processing
+          Newimages.forEach((image) => {
+            product.image.push(image);
+          });
+          
+          // Save the product
+          await product.save();
 
         console.log(req.body.categoryId)
         await Product.findByIdAndUpdate({ _id: id }, {
@@ -505,8 +586,8 @@ const commitCategoryOffers = async(req,res) =>{
         const categoryId = req.body.categoryId;
         const discountPercentage = parseInt(req.body.result);
         const products = await Product.find({ categoryid: categoryId });
-
-        await Category.findByIdAndUpdate({_id:categoryId},{$set:{discountPercentage:discountPercentage}})
+        const offerExpiry = req.body.offerExpiry
+        await Category.findByIdAndUpdate({_id:categoryId},{$set:{discountPercentage:discountPercentage,offerExpiry:offerExpiry}})
         const updatedProducts = products.map(product => {
                 if(product.discountPercentage==0){
                     const previousSalePrice = parseFloat(product.regularPrice);
@@ -587,6 +668,64 @@ const saveEditedCoupon = async(req,res) =>{
     }
 }
 
+const deleteCategoryOffer = async(req,res) =>{
+    try {
+        const categoryId = req.body.categoryId;
+        await Category.findByIdAndUpdate({_id:categoryId},{$set:{discountPercentage:0}});
+        const products = await Product.find({categoryid:categoryId})
+        const updatedProducts = await products.map((product)=>{
+            if(product.discountPercentage==0){
+                product.salePrice = product.regularPrice
+                return product.save();
+            }
+        })
+        if(updatedProducts){
+            res.json({status:"Success"})
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+const editCategoryOffers = async(req,res) =>{
+    try {
+        console.log(req.body)
+        const categoryId = req.body.categoryId;
+        const categoryData = await Category.findById({_id:categoryId});
+        const offerPercentage = categoryData.discountPercentage
+        console.log(offerPercentage)
+        res.json({offerPercentage})
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+const commitEditCategoryOffers = async(req,res) =>{
+    try {
+        const categoryId = req.body.categoryId
+        const discountPercentage = req.body.newOfferPercentage
+        await Category.findByIdAndUpdate({_id:categoryId},{$set:{discountPercentage:req.body.newOfferPercentage}})
+        const products = await Product.find({ categoryid: categoryId });
+        const updatedProducts = products.map(product => {
+            if(product.discountPercentage==0){
+                const previousSalePrice = parseFloat(product.regularPrice);
+            const newSalePrice = previousSalePrice * (1 - discountPercentage / 100);
+            console.log(newSalePrice)
+
+        // Update the product with the new salePrice
+            return Product.findByIdAndUpdate(product._id, { $set: { salePrice: newSalePrice } }, { new: true });
+        
+            }
+            
+        
+    });
+        await Promise.all(updatedProducts);
+        res.json({status:"Success"})
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 module.exports = {
     loadDashboard, displayProducts, displayCategories, loadCreateProduct,
     createProduct, editProduct, commitProductUpdate,
@@ -594,5 +733,6 @@ module.exports = {
     commitCategoryUpdate, deleteCategory, loadUsers, unblockUser, blockUser, loadUserDetails,logoutAdmin,
     getLogin,getDashboard,getOrderList,getOrderDetails,commitOrderDetails,getBrands,createBrand,blockBrand,
     unblockBrand,editBrand,commitEditBrand,getProductOffers,commitProductOffers,getCategoryOffers,
-    commitCategoryOffers,getAllCoupons,createCoupon,editCoupon,saveEditedCoupon
+    commitCategoryOffers,getAllCoupons,createCoupon,editCoupon,saveEditedCoupon,deleteCategoryOffer,
+    editCategoryOffers,commitEditCategoryOffers
 }

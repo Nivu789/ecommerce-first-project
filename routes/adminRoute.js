@@ -121,4 +121,10 @@ adminRoute.delete('/deleteImage/:productId/:index',adminAuth.isLogin, async (req
 
   adminRoute.post('/saveeditedcoupon',adminFunctions.saveEditedCoupon)
 
+  adminRoute.post('/delete-category-offer',adminFunctions.deleteCategoryOffer)
+
+  adminRoute.post('/editcategoryoffer',adminFunctions.editCategoryOffers)
+
+  adminRoute.post('/commit-edit-category-offer',adminFunctions.commitEditCategoryOffers)
+
 module.exports = adminRoute;

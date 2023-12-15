@@ -226,15 +226,33 @@
                             <div class="col">
                                 <div class="card card-user">
                                     <div class="card-header">
-                                        <img class="img-md img-avatar" src="/admin-assets/imgs/people/avatar1.jpg" alt="User pic">
+                                        
+                                            <a href="#" class="btn btn-sm btn-brand rounded font-sm mt-15 d-flex align-items-center" 
+                                             data-bs-toggle="modal" data-bs-target="#offerModal" onclick="getCategoryId('<%=categoryData[i]._id%>')"><i class="fa-solid fa-plus"></i>Add Offer</a>
+                                            
+                                        
+                                        <!-- <img class="img-md img-avatar" src="/admin-assets/imgs/people/avatar1.jpg" alt="User pic"> -->
                                     </div>
+                                    
                                     <div class="card-body">
+                                        <div>
+                                            
+                                        </div>
                                         <h5 class="card-title mt-50"><%=categoryData[i].categoryName%></h5>
                                         <div class="card-text text-muted">
                                             
-                                            <a href="#" class="btn btn-sm btn-brand rounded font-sm mt-15 d-flex align-items-center" 
-                                             data-bs-toggle="modal" data-bs-target="#offerModal" onclick="getCategoryId('<%=categoryData[i]._id%>')"><i class="fa-solid fa-plus"></i>Add Offer</a>
-                                        </div>
+                                            
+                                             
+                                             <%if(categoryData[i].discountPercentage){%>
+                                                <a href="#" class="btn btn-sm btn-brand rounded font-sm mt-15 d-flex align-items-center" 
+                                             data-bs-toggle="modal" data-bs-target="#editOfferModal" onclick="EditOffer('<%=categoryData[i]._id%>',event)"><i class="fa-solid"></i>Edit Offer</a>
+                                                
+                                             <a href="#" class="btn btn-sm btn-brand rounded font-sm mt-15 d-flex align-items-center bg-danger" 
+                                              onclick="deleteCategoryOffer('<%=categoryData[i]._id%>',event)"><i class="fa-solid fa-minus"></i>Delete Existing Offer</a>
+                                                <%}%>
+                                             
+                                            </div>
+                                        
                                     </div>
                                 </div>
                             </div>
@@ -251,6 +269,7 @@
 
                 function saveResult(){
                     const offerPercentage = document.getElementById('offerInPercentage').value;
+                    const offerExpiry = document.getElementById('offerExpiry').value;
 
                     fetch('/admin/savecategoryoffers',{
                         method:"POST",
@@ -259,7 +278,8 @@
                         },
                         body:JSON.stringify({
                             result:offerPercentage,
-                            categoryId:categoryId
+                            categoryId:categoryId,
+                            offerExpiry:offerExpiry
                         })
                     }).then(response=>{
                         if(response.ok){
@@ -271,6 +291,94 @@
                     }).catch(error=>{
                         console.log(error)
                     })
+                    }
+
+
+                    function deleteCategoryOffer(categoryId,event){
+                        event.preventDefault();
+                        
+                        fetch('/admin/delete-category-offer',{
+                            method:"POST",
+                            headers:{
+                                'Content-Type':'application/json'
+                            },
+                            body:JSON.stringify({
+                                categoryId:categoryId
+                            })
+                        }).then(res=>{
+                            if(res.ok){
+                                console.log("Success")
+                                return res.json()
+                            }else{
+                                console.log("Error")
+                            }
+                        }).then(data=>{
+                            if(data.status==="Success"){
+                                window.location.href = '/admin/categoryoffers'
+                            }
+                        })
+                        .catch(error=>{
+                            console.log(error)
+                        })
+                    }
+
+                    let forEditingCategory;
+                    function EditOffer(categoryId,event){
+                        forEditingCategory = categoryId;
+                        console.log(categoryId)
+                        event.preventDefault()
+                        fetch('/admin/editcategoryoffer',{
+                            method:"POST",
+                            headers:{
+                                'Content-Type':'application/json'
+                            },
+                            body:JSON.stringify({
+                                categoryId:categoryId
+                            })
+                        })
+                        .then(res=>{
+                            if(res.ok){
+                                return res.json()
+                            }else{
+                                console.log("Error")
+                            }
+                        }).then(data=>{
+                            const offerPercentage = data.offerPercentage
+                            console.log(offerPercentage)
+                            console.log(document.getElementById('offerInPercentage1'))
+                            document.getElementById('offerInPercentage1').value = offerPercentage
+                            console.log('Element after setting value:', document.getElementById('offerInPercentage'));
+                        }).catch(error=>{
+                            console.log(error)
+                        })
+                    }
+
+                    function commitEditCategoryOffer(categoryId){
+                        const newOfferPercentage = document.getElementById('offerInPercentage1')
+                        fetch('/admin/commit-edit-category-offer',{
+                            method:"POST",
+                            headers:{
+                                'Content-Type':'application/json'
+                            },
+                            body:JSON.stringify({
+                                categoryId:forEditingCategory,
+                                newOfferPercentage:newOfferPercentage.value
+                            })
+                        }).then(res=>{
+                            if(res.ok){
+                                console.log("Success")
+                                return res.json()
+                            }else{
+                                console.log("Error")
+                            }
+                        }).then(data=>{
+                            if(data.status==="Success"){
+                                window.location.href = '/admin/categoryoffers'
+                            }
+                        })
+                        .catch(error=>{
+                            console.log(error)
+                        })
                     }
              
             </script>
@@ -291,6 +399,12 @@
                                     id="offerInPercentage">
 
                             </div>
+                            <div class="mb-3">
+                                <label for="exampleInputEmail1" class="form-label">Expiry Date</label>
+                                <input type="date" class="form-control" aria-describedby="emailHelp"
+                                    id="offerExpiry">
+
+                            </div>
                         
                         </div>
                         <div class="modal-footer">
@@ -302,6 +416,37 @@
             </div>
             
             
+            <!-- edit offer model -->
+            <div class="modal fade" id="editOfferModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="exampleModalLabel">Edit Category Offer</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="exampleInputEmail1" class="form-label">Offer In Percentage</label>
+                                <input type="text" class="form-control" aria-describedby="emailHelp"
+                                    id="offerInPercentage1">
+
+                            </div>
+                            <div class="mb-3">
+                                <label for="exampleInputEmail1" class="form-label">Expiry Date</label>
+                                <input type="date" class="form-control" aria-describedby="emailHelp"
+                                    id="offerExpiry">
+
+                            </div>
+                        
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" onclick="commitEditCategoryOffer()">Save changes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <!-- modal end -->
             <div class="pagination-area mt-15 mb-50">
                 <nav aria-label="Page navigation example">

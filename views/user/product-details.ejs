@@ -270,7 +270,7 @@
                                     <!-- End Gallery -->
                                 </div>
 
-                                <%console.log(userData)%>
+                                
                                 <div class="col-md-6 col-sm-12 col-xs-12">
                                     <div class="detail-info">
                                         <h2 class="title-detail">
@@ -278,8 +278,9 @@
                                         </h2>
                                         <div class="product-detail-rating">
                                             <div class="pro-details-brand">
+                                                <%console.log(productData)%>
                                                 <span> Brand: <a href="shop-grid-right.html">
-                                                        <%=productData.brand%>
+                                                        <%=productData.brand.brandName%>
                                                     </a></span>
                                             </div>
                                             <div class="product-rate-cover text-end">

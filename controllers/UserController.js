@@ -13,7 +13,7 @@ const cron = require('node-cron');
 const randomstring = require('randomstring');
 require('dotenv').config();
 const Wishlist = require('../models/wishlistModel');
-
+const offerExpiry = require('../functions/offerExpiry')
 
 var instance = new Razorpay({
     key_id: process.env.RAZORPAY_ID,
@@ -28,6 +28,8 @@ var instance = new Razorpay({
 //             console.log('Random String:', randomString+randomNumber);
 
 //         });
+
+
 
 
 const loadLogin = (req,res) =>{
@@ -341,15 +343,20 @@ const getProductDetails = async(req,res) =>{
         const id = req.query.id;
         
         const email = req.session.email
-        const productData = await Product.findOne({_id:id})
+        const productData = await Product.findOne({_id:id}).populate('brand')
         const userData = await User.findOne({email:email})
         const fullProductData = await Product.find({})
-        const userId = userData._id;
-        // const userId = userData._id
-        const wishListData = await Wishlist.findOne({userId:userId})
-        if(productData){
-            res.render('product-details',{productData,userData,fullProductData,wishListData})
+        if(userData){
+            const userId = userData._id;
+            const wishListData = await Wishlist.findOne({userId:userId})
+            if(productData){
+                res.render('product-details',{productData,userData,fullProductData,wishListData})
+            }
+        }else{
+            res.render('product-details',{productData,fullProductData})
         }
+        // const userId = userData._id
+        
     } catch (error) {
         console.log(error)
     }
