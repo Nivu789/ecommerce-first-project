@@ -201,7 +201,7 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-3">
-                            <form method="post">
+                            <form method="post" enctype="multipart/form-data">
                                 <div class="mb-4">
                                     <label for="product_name" class="form-label">Name</label>
                                     <input type="text" placeholder="Type here" class="form-control" required id="product_name" name="categoryName" value="<%=categoryData.categoryName?categoryData.categoryName:''%>"/>
@@ -220,6 +220,10 @@
                                 <div class="mb-4">
                                     <label class="form-label">Description</label>
                                     <textarea placeholder="Type here" class="form-control" name="description" required><%= categoryData.description ? categoryData.description : '' %></textarea>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label">Images</label>
+                                    <input class="form-control" type="file" name="image" multiple>
                                 </div>
                                 <div class="d-grid">
                                     <button class="btn btn-primary" type="submit">Update Category</button>

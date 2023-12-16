@@ -39,7 +39,7 @@ adminRoute.get('/blockproduct',adminAuth.isLogin,adminFunctions.blockProduct)
 
 adminRoute.get('/unblockproduct',adminAuth.isLogin,adminFunctions.unblockProduct)
 
-adminRoute.post('/category',adminFunctions.createCategory)
+adminRoute.post('/category',upload.array('image', 1),adminFunctions.createCategory)
 
 adminRoute.get('/blockcategory',adminAuth.isLogin,adminFunctions.blockCategory)
 
@@ -47,7 +47,7 @@ adminRoute.get('/unblockcategory',adminAuth.isLogin,adminFunctions.unblockCatego
 
 adminRoute.get('/editcategory',adminAuth.isLogin,adminFunctions.editCategory)
 
-adminRoute.post('/editcategory',adminFunctions.commitCategoryUpdate)
+adminRoute.post('/editcategory',upload.array('image', 1),adminFunctions.commitCategoryUpdate)
 
 adminRoute.get('/deletecategory',adminAuth.isLogin,adminFunctions.deleteCategory)
 
@@ -126,5 +126,11 @@ adminRoute.delete('/deleteImage/:productId/:index',adminAuth.isLogin, async (req
   adminRoute.post('/editcategoryoffer',adminFunctions.editCategoryOffers)
 
   adminRoute.post('/commit-edit-category-offer',adminFunctions.commitEditCategoryOffers)
+
+  adminRoute.get('/banner-management',adminFunctions.getBannerManagement)
+
+  adminRoute.post('/create-banner',upload.array('image', 1),adminFunctions.addBanner)
+
+  adminRoute.post('/edit-banner',upload.array('image', 1),adminFunctions.editBanner)
 
 module.exports = adminRoute;

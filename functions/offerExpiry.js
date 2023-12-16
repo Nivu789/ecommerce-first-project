@@ -7,10 +7,15 @@ const checkCategoryOffer = cron.schedule('0 * * * * *', async() => {
         console.log("Checking")
         const expiredCategoryProducts = await Product.find({
             categoryid: {
-                $in: await Category.distinct('_id', { offerExpiry: { $lt: Date.now() } })
+                $in: await Category.distinct('_id', { offerExpiry: { $lte: Date.now() } })
             }
+            
         });
-    
+        const CategoryData = await Category.find({offerExpiry:{$lte:Date.now()}});
+        CategoryData.map(category=>{
+            category.discountPercentage = 0;
+            return category.save();
+        })
         
         const updatePromises = expiredCategoryProducts.map(async (product) => {
             if(product.discountPercentage==0){

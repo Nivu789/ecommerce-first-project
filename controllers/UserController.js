@@ -14,6 +14,7 @@ const randomstring = require('randomstring');
 require('dotenv').config();
 const Wishlist = require('../models/wishlistModel');
 const offerExpiry = require('../functions/offerExpiry')
+const Banner = require('../models/bannerModel')
 
 var instance = new Razorpay({
     key_id: process.env.RAZORPAY_ID,
@@ -46,12 +47,13 @@ const getHome = async(req,res) =>{
         const product = await Product.find({is_active:true}).populate('categoryid')
         const category = await Category.find({is_active:true})
         const userData = await User.findOne({email:req.session.email}).populate('cart.productId')
+        const bannerData = await Banner.find({})
         if(userData){
             const userId = userData._id
             const wishListData = await Wishlist.findOne({userId:userId})
-            res.render('home',{product,category,userData,wishListData})
+            res.render('home',{product,category,userData,wishListData,bannerData})
         }else{
-            res.render('home',{product,category,userData})
+            res.render('home',{product,category,userData,bannerData})
         }
         
         
@@ -65,6 +67,7 @@ const getHome = async(req,res) =>{
         const email = req.body.email;
         const password = req.body.password;
         const userData = await User.findOne({email:email});
+        
         if(userData){
             if(userData.is_verified==true){
                 if(userData.is_active==true){

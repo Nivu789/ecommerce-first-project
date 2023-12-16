@@ -7,6 +7,7 @@ const Coupon = require('../models/couponModel')
 const sharp = require('sharp');
 const fs = require('fs');
 const fse = require('fs-extra');
+const Banner = require('../models/bannerModel')
 
 //hello
 const getLogin = async(req,res) =>{
@@ -164,41 +165,7 @@ const commitProductUpdate = async (req, res) => {
         }else{
             let Newimages = []
             
-        //     const imagePromises = req.files.map(async (file) => {
-        //         const imagePath = `uploads/${file.filename}`;
-        //          const resizedImagePath = `uploads/resized_${file.filename}`;
-        //          await sharp(imagePath)
-        //         .resize({ width: 572, height: 572})
-        //         .toFile(resizedImagePath);
-    
-        //   // Remove the original uploaded image
-        //         // fs.unlinkSync(imagePath);
-        //         fse.remove(imagePath, (err) => {
-        //             if (err) {
-        //               console.error(err);
-        //             } else {
-        //               console.log('File deleted successfully');
-        //             }
-        //           });
-                  
-        //           req.files.forEach((image) => {
-        //             Newimages.push(
-        //                 // image.path
-        //                 resizedImagePath
-        //             )
-        //         })
-        //         //  return resizedImagePath;
-        //         });
-
-            
-       
-
-
-        // Newimages.forEach((image) => {
-        //     product.image.push(image)
-        // })
         
-        // await product.save()
 
         await Promise.all(req.files.map(async (file) => {
             const imagePath = `uploads/${file.filename}`;
@@ -209,18 +176,7 @@ const commitProductUpdate = async (req, res) => {
               .resize({ width: 572, height: 572 })
               .toFile(resizedImagePath);
           
-            // Remove the original uploaded image
-            // await new Promise((resolve, reject) => {
-            // //   fse.remove(imagePath, (err) => {
-            // //     if (err) {
-            // //       console.error(err);
-            // //       reject(err);
-            // //     } else {
-            // //       console.log('File deleted successfully');
-            // //       resolve();
-            // //     }
-            // //   });
-            // });
+            
           
             // Push the resized image path to Newimages array
             Newimages.push(resizedImagePath);
@@ -278,10 +234,34 @@ const createCategory = async (req, res) => {
         if (/\s/.test(categoryName)) {
             res.render('category', { message: "1", categoryData: categoryData})
         }else{
-            const categoryInfo = await new Category({
+            console.log(req.files)
+            const imagePromises = req.files.map(async (file) => {
+                const imagePath = `uploads/${file.filename}`;
+                 const resizedImagePath = `uploads/resized_${file.filename}`;
+                 await sharp(imagePath)
+                .resize({ width: 572, height: 572})
+                .toFile(resizedImagePath);
+    
+          // Remove the original uploaded image
+                // fs.unlinkSync(imagePath);
+                fse.remove(imagePath, (err) => {
+                    if (err) {
+                      console.error(err);
+                    } else {
+                      console.log('File deleted successfully');
+                    }
+                  });
+    
+                 return resizedImagePath;
+                });
+    
+                const resizedImageUrls = await Promise.all(imagePromises);
+            
+                const categoryInfo = await new Category({
                 categoryName: req.body.categoryName,
                 description: req.body.description,
-                is_active: true
+                is_active: true,
+                image:resizedImageUrls
             })
             const is_category = await Category.findOne({ categoryName: req.body.categoryName });
         const categoryData = await Category.find({})
@@ -331,7 +311,36 @@ const editCategory = async (req, res) => {
 const commitCategoryUpdate = async (req, res) => {
     try {
         const id = req.query.id;
-        await Category.findByIdAndUpdate({ _id: id }, { $set: { categoryName: req.body.categoryName, description: req.body.description } })
+        const category = await Category.findById({_id:id})
+        
+        let Newimages = []
+            
+        category.image = [];
+
+        await Promise.all(req.files.map(async (file) => {
+            const imagePath = `uploads/${file.filename}`;
+            const resizedImagePath = `uploads/resized_${file.filename}`;
+          
+            // Resize the image
+            await sharp(imagePath)
+              .resize({ width: 572, height: 572 })
+              .toFile(resizedImagePath);
+          
+            
+          
+            // Push the resized image path to Newimages array
+            Newimages.push(resizedImagePath);
+            category.image.push(resizedImagePath);
+          }));
+          console.log(Newimages)
+          // Now that all asynchronous operations are completed, proceed with further processing
+          
+            
+          
+          
+          // Save the product
+          await category.save();
+          await Category.findByIdAndUpdate({ _id: id }, { $set: { categoryName: req.body.categoryName, description: req.body.description } })
         res.redirect('/admin/category')
     } catch (error) {
         console.log(error)
@@ -673,6 +682,7 @@ const deleteCategoryOffer = async(req,res) =>{
         const categoryId = req.body.categoryId;
         await Category.findByIdAndUpdate({_id:categoryId},{$set:{discountPercentage:0}});
         const products = await Product.find({categoryid:categoryId})
+        console.log(products)
         const updatedProducts = await products.map((product)=>{
             if(product.discountPercentage==0){
                 product.salePrice = product.regularPrice
@@ -726,6 +736,161 @@ const commitEditCategoryOffers = async(req,res) =>{
     }
 }
 
+const getBannerManagement = async(req,res) =>{
+    try {
+        const bannerData = await Banner.find({})
+        res.render('banner-manager',{bannerData})
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+const addBanner = async(req,res) =>{
+    try {
+        if(req.body.bannerName==='First Banner'){
+            const imagePromises = req.files.map(async (file) => {
+                const imagePath = `uploads/${file.filename}`;
+                 const resizedImagePath = `uploads/resized_${file.filename}`;
+                 await sharp(imagePath)
+                .resize({ width: 572, height: 572})
+                .toFile(resizedImagePath);
+    
+          // Remove the original uploaded image
+                // fs.unlinkSync(imagePath);
+                fse.remove(imagePath, (err) => {
+                    if (err) {
+                      console.error(err);
+                    } else {
+                      console.log('File deleted successfully');
+                    }
+                  });
+    
+                 return resizedImagePath;
+                });
+    
+                const resizedImageUrls = await Promise.all(imagePromises);
+
+            const banner = await new Banner({
+                bannerName:req.body.bannerName,
+                image: resizedImageUrls,
+                bannerText:req.body.bannerText
+            })
+            await banner.save();
+            res.redirect('/admin/banner-management')
+        }
+
+        //Second banner
+        
+        if(req.body.bannerName==='Second Banner'){
+            const imagePromises = req.files.map(async (file) => {
+                const imagePath = `uploads/${file.filename}`;
+                 const resizedImagePath = `uploads/resized_${file.filename}`;
+                 await sharp(imagePath)
+                .resize({ width: 300, height: 170})
+                .toFile(resizedImagePath);
+    
+          // Remove the original uploaded image
+                // fs.unlinkSync(imagePath);
+                fse.remove(imagePath, (err) => {
+                    if (err) {
+                      console.error(err);
+                    } else {
+                      console.log('File deleted successfully');
+                    }
+                  });
+    
+                 return resizedImagePath;
+                });
+    
+                const resizedImageUrls = await Promise.all(imagePromises);
+
+            const banner = await new Banner({
+                bannerName:req.body.bannerName,
+                image: resizedImageUrls,
+                bannerText:req.body.bannerText
+            })
+            await banner.save();
+            res.redirect('/admin/banner-management')
+        }
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+const editBanner = async(req,res) =>{
+    try {
+        if(req.body.bannerName==='First Banner'){
+            const imagePromises = req.files.map(async (file) => {
+                const imagePath = `uploads/${file.filename}`;
+                 const resizedImagePath = `uploads/resized_${file.filename}`;
+                 await sharp(imagePath)
+                .resize({ width: 572, height: 572})
+                .toFile(resizedImagePath);
+    
+          // Remove the original uploaded image
+                // fs.unlinkSync(imagePath);
+                fse.remove(imagePath, (err) => {
+                    if (err) {
+                      console.error(err);
+                    } else {
+                      console.log('File deleted successfully');
+                    }
+                  });
+    
+                 return resizedImagePath;
+                });
+    
+                const resizedImageUrls = await Promise.all(imagePromises);
+
+            const banner = await new Banner({
+                bannerName:req.body.bannerName,
+                image: resizedImageUrls,
+                bannerText:req.body.bannerText
+            })
+            await banner.save();
+            res.redirect('/admin/banner-management')
+        }
+
+        if(req.body.bannerName==='Second Banner'){
+            const bannerData = await Banner.findOne({bannerName:req.body.bannerName});
+            console.log(bannerData)
+            bannerData.image = [];
+            console.log(bannerData.image)
+            const imagePromises = req.files.map(async (file) => {
+                const imagePath = `uploads/${file.filename}`;
+                 const resizedImagePath = `uploads/resized_${file.filename}`;
+                 await sharp(imagePath)
+                .resize({ width: 300, height: 170})
+                .toFile(resizedImagePath);
+    
+          // Remove the original uploaded image
+                // fs.unlinkSync(imagePath);
+                fse.remove(imagePath, (err) => {
+                    if (err) {
+                      console.error(err);
+                    } else {
+                      console.log('File deleted successfully');
+                    }
+                  });
+    
+                 return resizedImagePath;
+                });
+    
+                const resizedImageUrls = await Promise.all(imagePromises);
+                console.log(resizedImageUrls)
+                bannerData.image = [];
+                console.log(bannerData.image)
+            const banner = await Banner.findOneAndUpdate({bannerName:req.body.bannerName},{$set:{image:resizedImageUrls}})
+            await banner.save();
+            res.redirect('/admin/banner-management')
+        }
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 module.exports = {
     loadDashboard, displayProducts, displayCategories, loadCreateProduct,
     createProduct, editProduct, commitProductUpdate,
@@ -734,5 +899,5 @@ module.exports = {
     getLogin,getDashboard,getOrderList,getOrderDetails,commitOrderDetails,getBrands,createBrand,blockBrand,
     unblockBrand,editBrand,commitEditBrand,getProductOffers,commitProductOffers,getCategoryOffers,
     commitCategoryOffers,getAllCoupons,createCoupon,editCoupon,saveEditedCoupon,deleteCategoryOffer,
-    editCategoryOffers,commitEditCategoryOffers
+    editCategoryOffers,commitEditCategoryOffers,getBannerManagement,addBanner,editBanner
 }

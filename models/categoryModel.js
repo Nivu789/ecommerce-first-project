@@ -16,7 +16,10 @@ const category = mongoose.Schema({
     },
     offerExpiry:{
         type:Date,
-    }
+    },
+    image:[{
+        type:String
+    }]
 })
 
 const Category = mongoose.model('category',category);
