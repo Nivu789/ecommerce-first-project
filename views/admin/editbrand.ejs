@@ -201,7 +201,7 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-3">
-                            <form method="post" action="/admin/editbrand?id=<%=brandData._id%>">
+                            <form method="post" action="/admin/editbrand?id=<%=brandData._id%>" enctype="multipart/form-data">
                                 <div class="mb-4">
                                     <label for="product_name" class="form-label">Name</label>
                                     <input type="text" placeholder="Type here" class="form-control" required id="product_name" name="brandname" value="<%=brandData.brandName?brandData.brandName:''%>"/>
@@ -221,6 +221,10 @@
                                     <label class="form-label">Description</label>
                                     <textarea placeholder="Type here" class="form-control" name="description" required><%= brandData.description ? brandData.description : '' %></textarea>
                                 </div>
+                                <div class="mb-4">
+                                    <label class="form-label">Images</label>
+                                    <input class="form-control" type="file" name="image">
+                                </div>
                                 <div class="d-grid">
                                     <button class="btn btn-primary" type="submit">Update Brand</button>
                                 </div>
@@ -239,6 +243,21 @@
                                     });
                                 </script> 
                                 <%}%>
+                            
+                                <%if(message==='1'){%>
+                                    <script>
+                                        document.addEventListener('DOMContentLoaded', function () {
+                                            Swal.fire({
+                                                title: 'Error!',
+                                                text: 'Brand already exist',
+                                                icon: 'error',
+                                                showConfirmButton: true,
+                                                //   confirmButtonText: '<a href="/">Login to your account</a>',
+                                                //   confirmButtonColor:'#0000'
+                                            });
+                                        });
+                                    </script> 
+                                    <%}%>
                         </div>
                          <!-- .col// -->
                     </div> <!-- .row // -->

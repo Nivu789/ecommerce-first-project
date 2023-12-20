@@ -2,6 +2,7 @@ const User = require('../models/UserModel');
 const Order = require('../models/orderModel');
 const Product = require('../models/productModel')
 const Coupon = require('../models/couponModel')
+const generateOrderId = require('../functions/orderIdGenerator')
 
 const placeOrder = async(req,res) =>{
     try {
@@ -41,6 +42,8 @@ const placeOrder = async(req,res) =>{
         const userId = userData._id;
        await Coupon.findOneAndUpdate({couponcode:req.body.couponCode},{$push:{redeemedUsers:userId}})
        
+       let randomOrderId = await generateOrderId();
+       console.log("Random generted order id",randomOrderId)
        let order;
        if(paymentMethod==='online'||paymentMethod==='wallet'){
         order = new Order({
@@ -49,15 +52,19 @@ const placeOrder = async(req,res) =>{
             addressIndex:addressIndex,
             totalAmount:totalAmount,
             paymentMethod:paymentMethod,
-            paymentStatus:"Success"
+            paymentStatus:"Success",
+            orderId:randomOrderId
         })
        }else{
+
+
         order = new Order({
             userId:userData._id,
             products:arr,
             addressIndex:addressIndex,
             totalAmount:totalAmount,
-            paymentMethod:paymentMethod
+            paymentMethod:paymentMethod,
+            orderId:randomOrderId
         })
        }
        

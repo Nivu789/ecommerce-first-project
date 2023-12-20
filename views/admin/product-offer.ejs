@@ -293,14 +293,31 @@
                                             <%}%>
 
                                 </div>
-
-                                <div class="col-lg-2 col-sm-2 col-4 col-action text-end d-flex">
-                                    <a href="#" class="btn btn-sm font-sm rounded btn-brand d-flex align-items-center"
-                                        onclick="getOfferModal('<%=productData[i].regularPrice%>','<%=productData[i]._id%>')"
-                                        data-bs-toggle="modal" data-bs-target="#offerModal">
-                                        <i class="fa-solid fa-plus"></i> Add Offer
-                                    </a>
-                                </div>
+                                <%if(productData[i].discountPercentage==0){%>
+                                    <div class="col-lg-2 col-sm-2 col-4 col-action text-end d-flex">
+                                    
+                                        <a href="#" class="btn btn-sm font-sm rounded btn-brand d-flex align-items-center"
+                                            onclick="getOfferModal('<%=productData[i].regularPrice%>','<%=productData[i]._id%>')"
+                                            data-bs-toggle="modal" data-bs-target="#offerModal">
+                                            <i class="fa-solid fa-plus"></i> Add Offer
+                                        </a>
+                                    </div>
+                                    <%}else{%>
+                                        <div class="col-lg-3 col-sm-2 col-4 col-action text-end d-flex justify-content-between">
+                                    
+                                            <a href="#" class="btn btn-sm font-sm rounded btn-warning d-flex align-items-center"
+                                                onclick="editOffer('<%=productData[i].discountPercentage%>','<%=productData[i]._id%>','<%=productData[i].salePrice%>')"
+                                                data-bs-toggle="modal" data-bs-target="#editOfferModal">
+                                                <i class="fa-solid fa-plus"></i> Edit Offer
+                                            </a>
+                                            <a href="#" class="btn btn-sm font-sm rounded btn-danger d-flex align-items-center"
+                                                onclick="deleteOffer('<%=productData[i]._id%>')">
+                                                <i class="fa-solid fa-minus"></i> Delete Offer
+                                            </a>
+                                        </div>
+                                        
+                                        <%}%>
+                                        
                             </div> <!-- row .// -->
                         </article> <!-- itemlist  .// -->
                         <%}%>
@@ -367,8 +384,61 @@
                             console.log(error)
                         })
                 }
+                let productid;
+                function editOffer(offerInPercentage,productId,salePrice){
+                    document.getElementById('edit_offerInPercentage').value = offerInPercentage;
+                    console.log(productId)
+                    productid = productId
+                }
+
+                function editResult(){
+                    const editedPercentage = document.getElementById('edit_offerInPercentage');
+                    console.log(productid)
+                    fetch('/admin/editproductoffer', {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            editedPercentage: editedPercentage.value,
+                            productId: productid,
+                        })
+                    }).then(response => {
+                                if (response.ok) {
+                                    window.location.href = '/admin/productoffers'
+                                } else {
+                                    console.error('Unexpected response:', response);
+                                }
+                            })
+                        .catch((error) => {
+                            console.log(error)
+                        })
+                }
+
+                function deleteOffer(productId){
+                    fetch('/admin/delete-product-offer',{
+                        method:'POST',
+                        headers:{
+                            'Content-Type':'application/json'
+                        },
+                        body:JSON.stringify({
+                            productid:productId
+                        })
+                    }).then(res=>{
+                        if(res.ok){
+                            console.log("Success")
+                            window.location.href = '/admin/productoffers'
+                        }else{
+                            console.log("Error")
+                        }
+                    }).catch(error=>{
+                        console.log(error)
+                    })
+                }
+
 
             </script>
+            <!-- add offer modal -->
             <div class="modal fade" id="offerModal" tabindex="-1" aria-labelledby="exampleModalLabel"
                 aria-hidden="true">
                 <div class="modal-dialog">
@@ -400,6 +470,38 @@
                 </div>
             </div>
             <!-- ModalEnd -->
+
+            <!-- edit offer modal -->
+            <div class="modal fade" id="editOfferModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="exampleModalLabel">Edit Offer</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="exampleInputEmail1" class="form-label">Current Offer In Percentage</label>
+                                <input type="text" class="form-control" aria-describedby="emailHelp"
+                                    id="edit_offerInPercentage">
+
+                            </div>
+                            <!-- <div class="mb-3">
+                                <label for="exampleInputEmail1" class="form-label" id="currentSalePriceLabel">Current
+                                    Sale Price</label>
+                                <input type="text" class="form-control" id="edit_salePriceInput"
+                                    aria-describedby="emailHelp">
+                            </div> -->
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" onclick="getResult()">Check Price</button>
+                            <button type="button" class="btn btn-secondary" onclick="resetResult()">Reset Price</button>
+                            <button type="button" class="btn btn-primary" id="liveToastBtn" onclick="editResult()">Save changes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             
               <div class="pagination-area mt-30 mb-50">

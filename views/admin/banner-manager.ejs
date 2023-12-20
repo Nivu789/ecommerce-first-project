@@ -221,45 +221,29 @@
                 </header> <!-- card-header end// -->
                 <div class="card-body">
                     <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4">
-                        <div class="col">
-                            <div class="card card-user">
-                                <div class="">
-                                    <img class="" src="/<%=bannerData[0].image[0]%>" alt="User pic">
-                                </div>
-                                <div class="card-body">
-                                    <h5 class="card-title mt-50">First Banner</h5>
-                                    <div class="card-text text-muted">
-                                        <!-- <p class="m-0">Seller ID: #409</p> -->
-                                        <%if(bannerData[0].image[0]){%>
-                                            <button class="btn btn-sm btn-brand rounded font-sm mt-15 banner" id="" value="firstBanner" data-bs-toggle="modal" data-bs-target="#editBannerModal" onclick="editValue('firstBanner')">Edit Banner</button>
-                                            <%}else{%>
-                                                <button class="btn btn-sm btn-brand rounded font-sm mt-15" id="" value="firstBanner" data-bs-toggle="modal" data-bs-target="#addBannerModal" onclick="setValue('firstBanner')">Add Banner</button>
-                                                <%}%>
-                                        
+                        <%console.log(bannerData)%>
+                        <%for(i=0;i<bannerData.length;i++){%>
+                            <div class="col">
+                                <div class="card card-user">
+                                    <div class="">
+                                        <img class="" src="/<%=bannerData[i].image[0]%>" alt="User pic">
+                                    </div>
+                                    <div class="card-body">
+                                        <h5 class="card-title mt-50"><%=bannerData[i].bannerName%></h5>
+                                        <div class="card-text text-muted">
+                                            <!-- <p class="m-0">Seller ID: #409</p> -->  
+                                            <%if(bannerData[i].image[0]){%>
+                                                <button class="btn btn-sm btn-brand rounded font-sm mt-15 banner" id="" value="firstBanner" data-bs-toggle="modal" data-bs-target="#editBannerModal" onclick="editValue('<%=bannerData[i]._id%>','<%=bannerData[i].bannerName%>','<%=bannerData[i].bannerText%>')">Edit Banner</button>
+                                                <%}else{%>
+                                                    <button class="btn btn-sm btn-brand rounded font-sm mt-15" id="" value="firstBanner" data-bs-toggle="modal" data-bs-target="#addBannerModal" onclick="setValue('firstBanner')">Add Banner</button>
+                                                    <%}%>
+                                            
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div> <!-- col.// -->
+                            </div> <!-- col.// -->
+                            <%}%>
                         
-                        <div class="col">
-                            <div class="card card-user">
-                                <div class="">
-                                    <img class="" src="/<%=bannerData[1].image[0]%>" alt="User pic">
-                                </div>
-                                <div class="card-body">
-                                    <h5 class="card-title mt-50">Second Banner</h5>
-                                    <div class="card-text text-muted">
-                                        <!-- <p class="m-0">Seller ID: #409</p> -->
-                                        <%if(bannerData[1].image[0]){%>
-                                            <button class="btn btn-sm btn-brand rounded font-sm mt-15 banner" id="" value="secondBanner" data-bs-toggle="modal" data-bs-target="#editBannerModal" onclick="editValue('secondBanner')">Edit Banner</button>
-                                            <%}else{%>
-                                                <button class="btn btn-sm btn-brand rounded font-sm mt-15" id="" value="secondBanner" data-bs-toggle="modal" data-bs-target="#addBannerModal" onclick="setValue('secondBanner')">Add Banner</button>
-                                                <%}%>
-                                        
-                                    </div>
-                                </div>
-                            </div>
-                        </div> <!-- col.// -->
 
                     </div> <!-- row.// -->
                 </div> <!-- card-body end// -->
@@ -278,16 +262,10 @@
                     }
                 }
 
-                function editValue(buttonValue){
-                    console.log("Hi")
-                    
-                    if(buttonValue==="firstBanner"){
-                        const bannerName = document.getElementById('banner_edit_name')
-                        bannerName.value = "First Banner"
-                    }else if(buttonValue==="secondBanner"){
-                        const bannerName = document.getElementById('banner_edit_name')
-                        bannerName.value = "Second Banner"
-                    }
+                function editValue(bannerId,bannerName,bannerText){
+                    document.getElementById('bannerId').value = bannerId
+                    document.getElementById('banner_edit_name').value = bannerName
+                    document.getElementById('banner_edit_bannerText').value = bannerText
                 }
 
             </script>
@@ -347,11 +325,11 @@
                                             <input type="text" placeholder="Type here" class="form-control" required
                                                 id="banner_edit_name" name="bannerName"  readonly/>
                                         </div>
-
+                                        <input type="hidden" id="bannerId" name="bannerId">
                                         <div class="mb-4">
                                             <label for="product_name" class="form-label">Banner Text</label>
                                             <input type="text" placeholder="Type here" class="form-control" required
-                                                id="product_name" name="bannerText"/>
+                                                id="banner_edit_bannerText" name="bannerText"/>
                                         </div>
                                         
                                         <div class="mb-4">

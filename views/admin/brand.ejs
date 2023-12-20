@@ -248,7 +248,7 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-3">
-                            <form method="post" action="/admin/createbrand">
+                            <form method="post" action="/admin/createbrand" enctype="multipart/form-data">
                                 <div class="mb-4">
                                     <label for="product_name" class="form-label">Name</label>
                                     <input type="text" placeholder="Type here" class="form-control" required
@@ -269,6 +269,10 @@
                                     <label class="form-label">Description</label>
                                     <textarea placeholder="Type here" class="form-control" name="description"
                                         required></textarea>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label">Images</label>
+                                    <input class="form-control" type="file" name="image">
                                 </div>
                                 <div class="d-grid">
                                     <button class="btn btn-primary" type="submit">Create brand</button>
@@ -377,7 +381,7 @@
                     document.addEventListener('DOMContentLoaded', function () {
                         Swal.fire({
                             title: 'Oops!',
-                            text: 'Provide a valid category',
+                            text: 'Provide a valid brand',
                             icon: 'error',
                             showConfirmButton: true,
                             //   confirmButtonText: '<a href="/">Login to your account</a>',

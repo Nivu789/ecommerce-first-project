@@ -76,6 +76,10 @@ const userSchema = mongoose.Schema({
     },
     ref_code:{
         type:String
+    },
+    accountCreated:{
+        type:Date,
+        default:Date.now
     }
 })
 

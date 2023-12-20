@@ -411,15 +411,17 @@
                                         
                                         const ulist = document.querySelector('.sort-dropdown')
                                         const dropDown = document.querySelectorAll('.filetbyltoh');
+                                        const pageNumber = document.getElementById('ul-pagination');
                                         dropDown.forEach(function (item) {
                                             item.addEventListener('click', function () {
-
-
+                                                
+                                                // pageNumber.querySelector('li:nth-child(1)').classList.add('active');
+                                                console.log("WORKING")
                                                 localStorage.setItem('selectedOption', item.textContent);
                                                 // Log or perform other actions
                                                 console.log("Hello");
                                                 console.log("Text content is", item.textContent);
-
+                                                pageNumber.querySelector('li:nth-child(1)').classList.add('active');
                                                 // Assuming the page number is inside the item
                                             });
                                         });
@@ -432,8 +434,9 @@
                                                 return urlSearchParams.has(paramName);
                                         };
                                         
-                                        console.log("PAge loaded and the page is", sample)
                                         
+                                        console.log("PAge loaded and the page is", sample)
+                                        console.log("LIST ITEM",pageNumber.querySelector('li:nth-child(1)'))
                                         if (isQueryParamPresent('filterlth')) {
                                             console.log('filterlth query  in parameter');
                                             // Set the active class based on the selected option
@@ -480,6 +483,7 @@
 
                             <!--single product-->
                             <%for(i=0;i<productData.length;i++){%>
+                                
                                 <form action="/addtocart?productId=<%=productData[i]._id%>&quantity=1%>" method="post">
                                     <div class="product-cart-wrap">
                                         <div class="product-img-action-wrap">
@@ -507,7 +511,7 @@
                                         </div>
                                         <div class="product-content-wrap">
                                             <div class="product-category">
-                                                <a href="shop-grid-right.html">Music</a>
+                                                <a href="shop-grid-right.html"><%=productData[i].categoryid.categoryName%></a>
                                             </div>
                                             <h2><a href="shop-product-right.html">
                                                     <%=productData[i].productName%>
@@ -550,7 +554,7 @@
                         <form method="post">
                             <div class="pagination-area mt-15 mb-sm-5 mb-lg-0">
                                 <nav aria-label="Page navigation example">
-                                    <ul class="pagination justify-content-start">
+                                    <ul class="pagination justify-content-start" id="ul-pagination">
 
                                         <%for(i=1;i<=totalPages;i++){%>
                                             <%if(filter=='lth'){%>
@@ -587,11 +591,11 @@
                         <script>
                             document.addEventListener('DOMContentLoaded', function () {
                                 const pageItems = document.querySelectorAll('.page-item');
-
+                                const pageNumber = document.getElementById('ul-pagination');
                                 pageItems.forEach(function (item) {
                                     item.addEventListener('click', function () {
 
-
+                                        
                                         localStorage.setItem('selectedPage', item.textContent);
                                         // Log or perform other actions
                                         console.log("Hello");
@@ -602,6 +606,10 @@
 
                                 const selectedPage = localStorage.getItem('selectedPage')
                                 console.log("PAge loaded and the page is", selectedPage)
+                                if(selectedPage!=1){
+                                    console.log("not 1")
+                                    pageNumber.querySelector('li:nth-child(1)').classList.remove('active')
+                                }
                                 pageItems.forEach((item) => {
                                     if (item.textContent == selectedPage) {
                                         console.log(item)
@@ -617,13 +625,10 @@
                         <div class="widget-category mb-30">
                             <h5 class="section-title style-1 mb-30 wow fadeIn animated">Category</h5>
                             <ul class="categories">
-                                <li><a href="shop-grid-right.html">Shoes & Bags</a></li>
-                                <li><a href="shop-grid-right.html">Blouses & Shirts</a></li>
-                                <li><a href="shop-grid-right.html">Dresses</a></li>
-                                <li><a href="shop-grid-right.html">Swimwear</a></li>
-                                <li><a href="shop-grid-right.html">Beauty</a></li>
-                                <li><a href="shop-grid-right.html">Jewelry & Watch</a></li>
-                                <li><a href="shop-grid-right.html">Accessories</a></li>
+                                <%for(i=0;i<categoryData.length;i++){%>
+                                    <li><a href="shop-grid-right.html"><%=categoryData[i].categoryName%></a></li>
+                                    <%}%>
+                                
                             </ul>
                         </div>
                         <!-- Fillter By Price -->

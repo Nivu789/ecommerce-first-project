@@ -95,7 +95,7 @@ adminRoute.delete('/deleteImage/:productId/:index',adminAuth.isLogin, async (req
 
   adminRoute.get('/brands',adminAuth.isLogin,adminFunctions.getBrands)
 
-  adminRoute.post('/createbrand',adminFunctions.createBrand)
+  adminRoute.post('/createbrand',upload.array('image',1),adminFunctions.createBrand)
 
   adminRoute.get('/blockbrand',adminAuth.isLogin,adminFunctions.blockBrand)
 
@@ -103,7 +103,7 @@ adminRoute.delete('/deleteImage/:productId/:index',adminAuth.isLogin, async (req
 
   adminRoute.get('/editbrand',adminAuth.isLogin,adminFunctions.editBrand)
 
-  adminRoute.post('/editbrand',adminFunctions.commitEditBrand)
+  adminRoute.post('/editbrand',upload.array('image',1),adminFunctions.commitEditBrand)
 
   adminRoute.get('/productoffers',adminFunctions.getProductOffers)
 
@@ -132,5 +132,9 @@ adminRoute.delete('/deleteImage/:productId/:index',adminAuth.isLogin, async (req
   adminRoute.post('/create-banner',upload.array('image', 1),adminFunctions.addBanner)
 
   adminRoute.post('/edit-banner',upload.array('image', 1),adminFunctions.editBanner)
+
+  adminRoute.post('/editproductoffer',adminFunctions.editProductOffer)
+
+  adminRoute.post('/delete-product-offer',adminFunctions.deleteProductOffer)
 
 module.exports = adminRoute;

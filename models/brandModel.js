@@ -9,7 +9,12 @@ const brand = mongoose.Schema({
     },
     is_active:{
         type:Boolean
-    }
+    },
+    image:[
+        {
+            type:String
+        }
+    ]
 })
 
 const Brand = mongoose.model('brand',brand);

@@ -197,6 +197,20 @@
                     <input type="text" placeholder="Search Categories" class="form-control bg-white">
                 </div>
             </div>
+            <%if(message==='0'){%>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Category already exists',
+                            icon: 'error',
+                            showConfirmButton: true,
+                            //   confirmButtonText: '<a href="/">Login to your account</a>',
+                            //   confirmButtonColor:'#0000'
+                        });
+                    });
+                </script> 
+                <%}%>
             <div class="card">
                 <div class="card-body">
                     <div class="row">
@@ -256,6 +270,7 @@
     <script src="/admin-assets/js/vendors/select2.min.js"></script>
     <script src="/admin-assets/js/vendors/perfect-scrollbar.js"></script>
     <script src="/admin-assets/js/vendors/jquery.fullscreen.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
     <!-- Main Script -->
     <script src="/admin-assets/js/main.js" type="text/javascript"></script>
 </body>

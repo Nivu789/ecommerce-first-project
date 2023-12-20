@@ -15,6 +15,7 @@ require('dotenv').config();
 const Wishlist = require('../models/wishlistModel');
 const offerExpiry = require('../functions/offerExpiry')
 const Banner = require('../models/bannerModel')
+const Brand = require('../models/brandModel')
 
 var instance = new Razorpay({
     key_id: process.env.RAZORPAY_ID,
@@ -48,12 +49,13 @@ const getHome = async(req,res) =>{
         const category = await Category.find({is_active:true})
         const userData = await User.findOne({email:req.session.email}).populate('cart.productId')
         const bannerData = await Banner.find({})
+        const brandData = await Brand.find({})
         if(userData){
             const userId = userData._id
             const wishListData = await Wishlist.findOne({userId:userId})
-            res.render('home',{product,category,userData,wishListData,bannerData})
+            res.render('home',{product,category,userData,wishListData,bannerData,brandData})
         }else{
-            res.render('home',{product,category,userData,bannerData})
+            res.render('home',{product,category,userData,bannerData,brandData})
         }
         
         
@@ -599,7 +601,7 @@ const addToWishlist = async(req,res) =>{
             }})
         console.log("Product Exist",productExist)
         if(productExist){
-            res.json({message:"Product already exist in wishlist"})
+            res.json({message:"Exist"})
         }else{
             const wishListExist = await Wishlist.findOne({userId:req.body.userId})
             if(wishListExist){
@@ -611,6 +613,8 @@ const addToWishlist = async(req,res) =>{
             })
             await wishlist.save();
         }
+
+        res.json({message:"Added"})
         }
        
     } catch (error) {
@@ -1013,6 +1017,7 @@ const clearAllCart = async(req,res) =>{
 const getProductResults = async(req,res) =>{
     try {
         console.log(req.query.search)
+        const categoryData = await Category.find({})
         var search = '';
         var page = req.query.page||1;
         var limit = 5;
@@ -1025,12 +1030,13 @@ const getProductResults = async(req,res) =>{
             const productData = await Product.find({
                 $or: [
                     { productName: { $regex: new RegExp('.*' + search + '.*', 'i') } },
-                    { categoryid: { $in: await getCategoryIdsByCategoryName(search) } }
+                    { categoryid: { $in: await getCategoryIdsByCategoryName(search) } },
+                    { brand: { $in: await getCategoryIdsByBrandName(search) } }
                 ]
-            }).limit(limit)
+            }).populate('categoryid').limit(limit)
             .skip((page-1)*limit)
             
-            // console.log(productData)
+            console.log(productData)
 
             async function getCategoryIdsByCategoryName(categoryName) {
                 const regexPattern = new RegExp('.*' + categoryName.replace(/ /g, '.*') + '.*', 'i');
@@ -1038,6 +1044,14 @@ const getProductResults = async(req,res) =>{
                 const category = await Category.findOne({ categoryName: { $regex: regexPattern } });
                 console.log(category)
                 return category ? [category._id] : [];
+            }
+
+            async function getCategoryIdsByBrandName(brandName) {
+                const regexPattern = new RegExp('.*' + brandName.replace(/ /g, '.*') + '.*', 'i');
+                console.log('Regex Pattern:', regexPattern);
+                const brand = await Brand.findOne({ brandName: { $regex: regexPattern } });
+                console.log(brand)
+                return brand? [brand._id] : [];
             }
 
             const count = await Product.find({
@@ -1049,7 +1063,7 @@ const getProductResults = async(req,res) =>{
 
             const totalPages = Math.ceil(count/limit);
             // console.log(productData)
-            res.render('product-results',{productData,totalPages,search,page,filter:''})
+            res.render('product-results',{productData,totalPages,search,page,filter:'',categoryData})
         }
 
     } catch (error) {
@@ -1060,6 +1074,7 @@ const getProductResults = async(req,res) =>{
 const filterByAscending = async(req,res) =>{
     try {
         var search = req.query.search
+        const categoryData = await Category.find({})
         var limit = 5;
         var page = req.query.page||1;
         console.log("PAge is",req.query.page)
@@ -1093,7 +1108,7 @@ const filterByAscending = async(req,res) =>{
 
             const totalPages = Math.ceil(count/limit);
             console.log(productData)
-            res.render('product-results',{productData,totalPages,search,page,filter:'lth'})
+            res.render('product-results',{productData,totalPages,search,page,filter:'lth',categoryData})
         }
     } catch (error) {
         console.log(error)
@@ -1106,6 +1121,7 @@ const filterByDescending = async(req,res) =>{
         var limit = 5;
         var page = req.query.page || 1;
         console.log("Page is",page)
+        const categoryData = await Category.find({})
         const productData = await Product.find({
             $or:[
                 {productName:{$regex:new RegExp('.*'+search+'.*')}},
@@ -1131,7 +1147,7 @@ const filterByDescending = async(req,res) =>{
         console.log(count)
 
         const totalPages = Math.ceil(count/limit);
-        res.render('product-results',{productData,totalPages,search,page,filter:'htl'})
+        res.render('product-results',{productData,totalPages,search,page,filter:'htl',categoryData})
     } catch (error) {
         console.log(error)
     }

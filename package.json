@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js"
+    "start": "nodemon server.js",
+    "compile-sass": "sass snow.scss snow.css"
   },
   "keywords": [],
   "author": "",
@@ -27,6 +28,7 @@
     "randomstring": "^1.3.0",
     "razorpay": "^2.9.2",
     "rimraf": "^5.0.5",
+    "sass": "^1.69.5",
     "sharp": "^0.33.0",
     "sweetalert2": "^11.9.0"
   }

@@ -65,14 +65,14 @@
 
                   <div class="panel-collapse collapse coupon_form " id="coupon">
                     <div class="panel-body">
-                        <p class="mb-30 font-sm">If you have a coupon code, please apply it below.</p>
+                        <!-- <p class="mb-30 font-sm">If you have a coupon code, please apply it below.</p> -->
                         <form method="">
                             <div class="form-group">
-                                <input type="text" placeholder="Enter Coupon Code..." name="couponCode"
+                                <input type="text" class="form-control form-control-lg" placeholder="Enter Coupon Code..." name="couponCode"
                                     id="refCode">
-                            </div>
+                            </div><br>
                             <div class="form-group">
-                                <button class="btn  btn-md" id="applybutton" name="login"
+                                <button class="btn  btn-md btn-primary" id="applybutton" name="login"
                                     onclick="applyReferral(event)">Apply Coupon</button>
                             </div>
                             <p id="errorMessage"></p>
@@ -111,7 +111,7 @@
                     })
                   }
                 </script>
-                <p class="text-center text-muted mt-5 mb-0">Have already an account? <a href="/"
+                <p class="text-center text-muted mt-5 mb-0">Already have an account? <a href="/"
                     class="fw-bold text-body"><u>Login here</u></a></p>
               </form>
               <div class="col-lg-6">

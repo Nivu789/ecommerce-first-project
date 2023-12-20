@@ -8,7 +8,7 @@
             // The type of chart we want to create
             type: 'line',
             
-            // The data for our dataset
+    //         // The data for our dataset
             data: {
                 labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
                 datasets: [{
