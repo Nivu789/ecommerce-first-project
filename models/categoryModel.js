@@ -14,6 +14,10 @@ const category = mongoose.Schema({
         type:Number,
         default:0
     },
+    flatOfferAmount:{
+        type:Number,
+        default:0
+    },
     offerExpiry:{
         type:Date,
     },

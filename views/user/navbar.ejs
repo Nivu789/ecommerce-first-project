@@ -207,7 +207,12 @@
                                 <%if(locals.userData){%>
                                     <a href="/wishlist?id=<%=userData._id%>">
                                         <img class="svgInject" alt="Evara" src="assets/imgs/theme/icons/icon-heart.svg">
-                                        <span class="pro-count blue"><%=wishListData.products.length%></span>
+                                        <%if(wishListData!==null){%>
+                                            <span class="pro-count blue"><%=wishListData.products.length%></span>
+                                            <%}else{%>
+                                                <span class="pro-count blue">0</span>
+                                                <%}%>
+                                        
                                     </a>
                                     <%}else{%>
                                         <a href="#">

@@ -30,7 +30,7 @@ const getDashboard = async (req, res) => {
                 $group: {
                     _id: { month: { $month: '$orderDate' } },
                     totalOrders: { $sum: 1 },
-                    totalProducts: { $sum: '$products.quantity' }
+                    totalProducts: { $sum: '$products.quantity' },
                 }
             },
             {
@@ -40,11 +40,37 @@ const getDashboard = async (req, res) => {
             }
         ]);
 
+        const fullOrderData = await Order.find({}).sort({orderDate:-1}).populate('userId')
+
+        const orderAmount = await Order.aggregate([
+            {
+              $group: {
+                _id: null,
+                totalAmountSum: { $sum: { $toDouble: '$totalAmount' } },
+                totalOrders: { $sum: 1 }
+              }
+            }
+          ])
+
+        const totalAmount = orderAmount[0].totalAmountSum
+        const totalOrders = orderAmount[0].totalOrders
+
+        const productData = await Product.aggregate([
+            {
+                $group:{
+                    _id:null,
+                    totalProducts:{$sum:1}
+                }
+            }
+        ])
+
+        const totalProducts = productData[0].totalProducts
+
         const userData = await User.aggregate([
             {
                 $group: {
                     _id: { $month: '$accountCreated' },
-                    totalRegister: { $sum: 1 }
+                    totalRegister: { $sum: 1 },
                 }
             },
             {
@@ -53,6 +79,18 @@ const getDashboard = async (req, res) => {
                 }
             }
         ]);
+
+
+        const totalUsersFind = await User.aggregate([
+            {
+                $group:{
+                    _id:null,
+                    totalUsers:{$sum:1}
+                }
+            }
+        ])
+        
+        const totalUsers = totalUsersFind[0].totalUsers
 
         const categoryData = await Product.aggregate([
             {
@@ -82,6 +120,43 @@ const getDashboard = async (req, res) => {
         ]);
         console.log(categoryData)
 
+        const orderStats = await Order.aggregate([
+            {
+              $unwind: '$products'
+            },
+            {
+              $lookup: {
+                from: 'products',
+                localField: 'products.productId',
+                foreignField: '_id',
+                as: 'productInfo'
+              }
+            },
+            {
+              $unwind: '$productInfo'
+            },
+            {
+              $lookup: {
+                from: 'categories',
+                localField: 'productInfo.categoryid',
+                foreignField: '_id',
+                as: 'categoryInfo'
+              }
+            },
+            {
+              $group: {
+                _id: '$categoryInfo._id',
+                categoryName: { $first: '$categoryInfo.categoryName' },
+                orderCount: { $sum: 1 }
+              }
+            }
+          ]);
+            console.log(orderStats)
+            const categoryNames = JSON.stringify(orderStats.map(stat => stat.categoryName).flat());
+            const orderCounts = JSON.stringify(orderStats.map(stat => stat.orderCount));
+
+            console.log(categoryNames)
+            console.log(orderCounts)
         // Extracting the total orders and products for each month
         const monthlyData = Array.from({ length: 12 }, (_, index) => {
             const monthOrderData = orderData.find(item => item._id.month === index + 1) || { totalOrders: 0, totalProducts: 0 };
@@ -94,6 +169,8 @@ const getDashboard = async (req, res) => {
             
         });
 
+        console.log(monthlyData)
+        
 
         const totalOrdersJson= JSON.stringify(monthlyData.map(item => item.totalOrders));
         const totalProductsJson = JSON.stringify(monthlyData.map(item => item.totalProducts));
@@ -103,7 +180,8 @@ const getDashboard = async (req, res) => {
         console.log(categoryLabelsJson)
         const categoryValuesJson = JSON.stringify(categoryData.map(item => item.totalProducts));
       
-        res.render('dashboard', { totalOrdersJson,totalProductsJson ,totalRegisterJson, categoryLabelsJson, categoryValuesJson});
+        res.render('dashboard', { totalOrdersJson,totalProductsJson ,totalRegisterJson, categoryLabelsJson, categoryValuesJson,
+            totalAmount,totalOrders,totalProducts,totalUsers,fullOrderData,categoryNames,orderCounts});
     } catch (error) {
         console.log(error);
         res.status(500).send('Internal Server Error');
@@ -786,19 +864,34 @@ const deleteCategory = async (req, res) => {
             const date = req.body.date
             const description = req.body.description
             const minimumAmount = req.body.minimumPurchase
+            if(req.body.offerType==='Flat Offer'){
+                const couponData = new Coupon({
+                    couponcode: couponCode,
+                    status: true,
+                    discount: discountAmount,
+                    minPurchase: minimumAmount,
+                    expiryDate: date,
+                    limit: 1,
+                    redeemedUsers: null,
+                    description: description
+                })
+                await couponData.save();
+            }else{
+                const couponData = new Coupon({
+                    couponcode: couponCode,
+                    status: true,
+                    offerPercentage:discountAmount,
+                    minPurchase: minimumAmount,
+                    expiryDate: date,
+                    limit: 1,
+                    redeemedUsers: null,
+                    description: description
+                })
+                await couponData.save();
+            }
+            
 
-            const couponData = new Coupon({
-                couponcode: couponCode,
-                status: true,
-                discount: discountAmount,
-                minPurchase: minimumAmount,
-                expiryDate: date,
-                limit: 1,
-                redeemedUsers: null,
-                description: description
-            })
-
-            await couponData.save();
+            
             res.redirect('/admin/coupons')
         } catch (error) {
             console.log(error)
@@ -836,7 +929,7 @@ const deleteCategory = async (req, res) => {
     const deleteCategoryOffer = async (req, res) => {
         try {
             const categoryId = req.body.categoryId;
-            await Category.findByIdAndUpdate({ _id: categoryId }, { $set: { discountPercentage: 0 } });
+            await Category.findByIdAndUpdate({ _id: categoryId }, { $set: { discountPercentage: 0 ,flatOfferAmount:0} });
             const products = await Product.find({ categoryid: categoryId })
             console.log(products)
             const updatedProducts = await products.map((product) => {
@@ -859,8 +952,10 @@ const deleteCategory = async (req, res) => {
             const categoryId = req.body.categoryId;
             const categoryData = await Category.findById({ _id: categoryId });
             const offerPercentage = categoryData.discountPercentage
+            const offerExpiry = categoryData.offerExpiry
+            const flatOfferAmount = categoryData.flatOfferAmount
             console.log(offerPercentage)
-            res.json({ offerPercentage })
+            res.json({ offerPercentage,offerExpiry ,flatOfferAmount})
         } catch (error) {
             console.log(error)
         }
@@ -870,7 +965,12 @@ const deleteCategory = async (req, res) => {
         try {
             const categoryId = req.body.categoryId
             const discountPercentage = req.body.newOfferPercentage
-            await Category.findByIdAndUpdate({ _id: categoryId }, { $set: { discountPercentage: req.body.newOfferPercentage } })
+            console.log("discountPercentage",discountPercentage)
+            const expiryDate = req.body.date
+            console.log(expiryDate)
+            if(discountPercentage!==undefined){
+                console.log("Inside if itself")
+                await Category.findByIdAndUpdate({ _id: categoryId }, { $set: { discountPercentage: req.body.newOfferPercentage , offerExpiry:expiryDate} })
             const products = await Product.find({ categoryid: categoryId });
             const updatedProducts = products.map(product => {
                 if (product.discountPercentage == 0) {
@@ -887,6 +987,28 @@ const deleteCategory = async (req, res) => {
             });
             await Promise.all(updatedProducts);
             res.json({ status: "Success" })
+            }else{
+                console.log("Coming in else")
+                const newflatAmount = parseFloat(req.body.newFlatAmount);
+                await Category.findByIdAndUpdate({ _id: categoryId }, { $set: { flatOfferAmount: newflatAmount , offerExpiry:expiryDate} })
+                const products = await Product.find({ categoryid: categoryId });
+            const updatedProducts = products.map(product => {
+                if (product.discountPercentage == 0) {
+                    const previousSalePrice = parseFloat(product.regularPrice);
+                    const newSalePrice = parseFloat(previousSalePrice -newflatAmount);
+                    console.log(newSalePrice)
+
+                    // Update the product with the new salePrice
+                    return Product.findByIdAndUpdate(product._id, { $set: { salePrice: newSalePrice } }, { new: true });
+
+                }
+
+
+            });
+            await Promise.all(updatedProducts);
+            res.json({ status: "Success" })
+            }
+            
         } catch (error) {
             console.log(error)
         }
@@ -1042,10 +1164,116 @@ const deleteCategory = async (req, res) => {
     const deleteProductOffer = async (req, res) => {
         try {
             const productId = req.body.productid
-            const productData = await Product.findById({ _id: productId });
+            const productData = await Product.findById({ _id: productId }).populate('categoryid');
             const regularPrice = productData.regularPrice
             await Product.findByIdAndUpdate({ _id: productId }, { $set: { discountPercentage: 0, salePrice: regularPrice } })
             res.redirect('/admin/productoffers')
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+
+    const getSalesReport = async(req,res) =>{
+        try {
+            let orderData;
+            console.log(req.query.search)
+            if (req.query.from && req.query.to && req.query.search) {
+                console.log("If");
+                orderData = await Order.find({
+                    $or: [
+                        { orderId: { $regex: '.*' + req.query.search + '.*' } },
+                        { paymentMethod: { $regex: '.*' + req.query.search + '.*' } }
+                    ],
+                    orderDate: {
+                        $gte: new Date(req.query.from),
+                        $lte: new Date(req.query.to)
+                    }
+                });
+                console.log(orderData);
+                // Use orderData as needed
+            
+            }else if(req.query.from&&req.query.to){
+                console.log("Else if")
+                orderData = await Order.find({
+                    orderDate: {
+                       $gte: new Date(req.query.from),
+                       $lte: new Date(req.query.to)
+                     }
+                  });
+            }else if(req.query.search){
+                orderData = await Order.find({
+                    $or: [
+                        { orderId: { $regex: '.*' + req.query.search + '.*' } },
+                        { paymentMethod: { $regex: '.*' + req.query.search + '.*' } }
+                    ]
+                });
+            }else{
+                console.log("Else")
+                orderData = await Order.find({}).sort({orderDate:-1})
+            }
+            
+            let onlinePayments=0;
+            let cashPayments=0;
+            let cancelledOrders = 0
+            let totalAmount = 0;
+            orderData.forEach(item=>{
+                if(item.paymentMethod==="online"){
+                    onlinePayments++;
+                }else if(item.paymentMethod==="cash"){
+                    cashPayments++;
+                }
+                if(item.orderStatus==="Cancelled"){
+                    cancelledOrders++;
+                }
+                totalAmount += parseInt(item.totalAmount)
+            })
+            const noOfUsers = await Order.distinct("userId");
+            distinctUserLength = noOfUsers.length;
+            res.render('salesreport',{orderData,onlinePayments,cashPayments,cancelledOrders,totalAmount,distinctUserLength})
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const filterReport = async(req,res) =>{
+        try {
+            const search = req.body.search || ''
+            if(req.body.from_date&&req.body.to_date){
+                const fromDate = req.body.from_date
+                const toDate = req.body.to_date
+                res.redirect(`/admin/salesreport?from=${fromDate}&to=${toDate}&search=${search}`)
+            }else{
+                res.redirect(`/admin/salesreport?search=${search}`)
+            }   
+            
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const setFlatDiscountCategory = async(req,res) =>{
+        try {
+            const flatOfferAmount = parseInt(req.body.result)
+            const categoryId = req.body.categoryId
+            const products = await Product.find({ categoryid: categoryId });
+            const offerExpiry = req.body.offerExpiry
+            await Category.findByIdAndUpdate({ _id: categoryId }, { $set: { flatOfferAmount: flatOfferAmount, offerExpiry: offerExpiry } })
+            const updatedProducts = products.map(product => {
+                if (product.discountPercentage == 0) {
+                    const previousSalePrice = parseFloat(product.regularPrice);
+                    const newSalePrice = previousSalePrice - flatOfferAmount;
+                    console.log(newSalePrice)
+
+                    // Update the product with the new salePrice
+                    return Product.findByIdAndUpdate(product._id, { $set: { salePrice: newSalePrice } }, { new: true });
+
+                }
+
+
+            });
+            await Promise.all(updatedProducts);
+            res.redirect('/admin/categoryoffers')
         } catch (error) {
             console.log(error)
         }
@@ -1059,5 +1287,6 @@ const deleteCategory = async (req, res) => {
         getLogin, getDashboard, getOrderList, getOrderDetails, commitOrderDetails, getBrands, createBrand, blockBrand,
         unblockBrand, editBrand, commitEditBrand, getProductOffers, commitProductOffers, getCategoryOffers,
         commitCategoryOffers, getAllCoupons, createCoupon, editCoupon, saveEditedCoupon, deleteCategoryOffer,
-        editCategoryOffers, commitEditCategoryOffers, getBannerManagement, addBanner, editBanner, editProductOffer, deleteProductOffer
+        editCategoryOffers, commitEditCategoryOffers, getBannerManagement, 
+        addBanner, editBanner, editProductOffer, deleteProductOffer,getSalesReport,filterReport,setFlatDiscountCategory
     }

@@ -137,4 +137,10 @@ adminRoute.delete('/deleteImage/:productId/:index',adminAuth.isLogin, async (req
 
   adminRoute.post('/delete-product-offer',adminFunctions.deleteProductOffer)
 
+  adminRoute.get('/salesreport',adminFunctions.getSalesReport)
+
+  adminRoute.post('/filter-report',adminFunctions.filterReport)
+
+  adminRoute.post('/savecategoryoffersflat',adminFunctions.setFlatDiscountCategory)
+
 module.exports = adminRoute;

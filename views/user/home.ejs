@@ -224,13 +224,20 @@
                             
                         </div>
                         </div>
+                        
+                        
                         <div class="header-action-right">
                             <div class="header-action-2">
                                 <div class="header-action-icon-2">
                                     <%if(locals.userData){%>
                                         <a href="/wishlist?id=<%=userData._id%>">
                                             <img class="svgInject" alt="Evara" src="assets/imgs/theme/icons/icon-heart.svg">
-                                            <span class="pro-count blue" id="wishlist-length"><%=wishListData.products.length%></span>
+                                            <%if(wishListData!==null){%>
+                                                <span class="pro-count blue" id="wishlist-length"><%=wishListData.products.length%></span>
+                                                <%}else{%>
+                                                    <span class="pro-count blue" id="wishlist-length">0</span>
+                                                    <%}%>
+                                            
                                         </a>
                                         <%}else{%>
                                             <a href="">
@@ -1110,24 +1117,37 @@
                                             // Assuming product[i].categoryid is the category associated with the product
                                             const productDiscount = product[i].discountPercentage;
                                             const categoryDiscount = product[i].categoryid.discountPercentage
-                                            const displayDiscount = productDiscount > 0 ? productDiscount : categoryDiscount;
+                                            const flatDiscount = product[i].categoryid.flatOfferAmount
+                                            const offerInCategory = categoryDiscount>0? categoryDiscount : flatDiscount
+                                            const displayDiscount = productDiscount > 0 ? productDiscount : offerInCategory;
                                         %>
                                         <div class="product-price">
                                             <span>₹<%=product[i].salePrice%></span>
-                                            <%if(displayDiscount!==0){%>
+                                            <%if(displayDiscount!==0&&product[i].salePrice!==product[i].regularPrice){%>
                                                 <span class="old-price">₹<%=product[i].regularPrice%></span>
                                                 <%}%>
                                             
                                             &nbsp;
-                                            <%if(displayDiscount==0){%>
-                                                <span>
-                                                    <span style="font-size: 18pt;" class="offerValue"></span><span class="offerValue"></span>
-                                                </span>
-                                                <%}else{%>
+                                            <%if(product[i].salePrice!==product[i].regularPrice){%>
+                                                <%if(displayDiscount==0){%>
                                                     <span>
-                                                        <span style="font-size: 18pt;" class="offerValue"><%=displayDiscount%></span><span class="offerValue">%OFF</span>
+                                                        <span style="font-size: 18pt;" class="offerValue"></span><span class="offerValue"></span>
                                                     </span>
-                                                    <%}%>
+                                                    <%}else if(displayDiscount==productDiscount){%>
+                                                        <span>
+                                                            <span style="font-size: 18pt;" class="offerValue"><%=displayDiscount%></span><span class="offerValue">%OFF</span>
+                                                        </span>
+                                                        <%}else if(offerInCategory==categoryDiscount){%>
+                                                            <span>
+                                                                <span style="font-size: 18pt;" class="offerValue"><%=displayDiscount%></span><span class="offerValue">%OFF</span>
+                                                            </span>
+                                                            <%}else if(offerInCategory==flatDiscount){%>
+                                                                <span>
+                                                                    <span style="font-size: 18pt;" class="offerValue"><%=displayDiscount%></span><span class="offerValue">Flat off</span>
+                                                                </span>
+                                                                <%}%>
+                                                <%}%>
+                                            
                                             
                                         </div>
                                         <div class="product-action-1 show">

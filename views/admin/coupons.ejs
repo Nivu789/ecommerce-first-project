@@ -217,8 +217,8 @@
                     <p>Add,edit or delete coupon</p>
                 </div>
                 <div>
-                    <a href="#" class="btn btn-light rounded font-md">Export</a>
-                    <a href="#" class="btn btn-light rounded  font-md">Import</a>
+                    <!-- <a href="#" class="btn btn-light rounded font-md">Export</a>
+                    <a href="#" class="btn btn-light rounded  font-md">Import</a> -->
                     <a href="#" class="btn btn-primary btn-sm rounded" data-bs-toggle="modal" data-bs-target="#exampleModal">Create new</a>
                 </div>
             </div>
@@ -239,8 +239,9 @@
                             </tr>
                         </thead>
                         <tbody>
+                            <div class="card-body">
                             <%for(i=0;i<couponData.length;i++){%>
-                                <div class="card-body">
+                                
                                 <tr style="text-align: center;">
                                     
                                     <td style="font-size: 20pt;"><b><%=couponData[i].couponcode%></b></td>
@@ -267,9 +268,9 @@
                                         </div> dropdown //end -->
                                     </td>
                                 </tr>
-                                </div>
+                                
                                 <%}%>
-                            
+                            </div>
                             </tbody>
                     </table>
                     <script>
@@ -280,7 +281,12 @@
                             document.getElementById('couponcode').value = couponCode
                             document.getElementById('discountamount').value = discount
                             document.getElementById('minPurchase').value = minPurchase
-                            document.getElementById('date').value = expiryDate
+                            const couponExpiry = new Date(expiryDate);
+                            const year = couponExpiry.getFullYear();
+                            const month = couponExpiry.getMonth()+1;
+                            const day = couponExpiry.getDate();
+                            const formattedDate = `${year}-${month<10?'0':''}${month}-${day<10?'0':''}${day}`
+                            document.getElementById('date').value = formattedDate
                             document.getElementById('description').value = description
                             couponid=couponId;
                         }
@@ -360,7 +366,7 @@
                     </div>
                 </div>
             </div>
-
+            
             <!-- Modal -->
             <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
                 aria-hidden="true">
@@ -368,27 +374,37 @@
                     <form method="post" action="/admin/createcoupon">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                            <h1 class="modal-title fs-5" id="exampleModalLabel">Add Coupon</h1>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                                 
                                 <div class="mb-3">
                                   <label for="exampleInputEmail1" class="form-label">Coupon Code</label>
-                                  <input type="text" class="form-control" id="couponcode" aria-describedby="emailHelp" name="couponCode">
+                                  <input type="text" class="form-control" id="couponcode" aria-describedby="emailHelp" name="couponCode" required>
                                 </div>
+                                <div class="dropdown">
+                                    <input type="hidden" name="offerType" id="offerTypeInput" value="">
+                                    <button class="btn btn-secondary dropdown-toggle" name="offerTypeButton" type="button" id="offerTypeButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                      Offer type
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#" id="percentageOffer">Percentage Offer</a></li>
+                                      <li><a class="dropdown-item" href="#" id="flatOffer">Flat Offer</a></li>
+                                    </ul>
+                                  </div>
                                 <div class="mb-3">
-                                  <label for="exampleInputPassword1" class="form-label">Discount Amount</label>
-                                  <input type="number" class="form-control" id="discountamount" name="discountAmount">
+                                  <label for="exampleInputPassword1" class="form-label" id="offerTypeLabel">Flat Offer Amount</label>
+                                  <input type="number" class="form-control" id="discountamount" name="discountAmount" required>
                                 </div>
                                 <div class="mb-3">
                                     <label for="exampleInputPassword1" class="form-label">Minimum Purchase Amount</label>
-                                    <input type="number" class="form-control" id="discountamount" name="minimumPurchase">
+                                    <input type="number" class="form-control" id="discountamount" name="minimumPurchase" required>
                                   </div>
                                 <div class="mb-3">
                                     <label for="exampleInputPassword1" class="form-label">Expiry Date</label>
                                     <div class="">
-                                        <input type="date" value="02.05.2021" class="form-control" name="date" id="date">
+                                        <input type="date" value="02.05.2021" class="form-control" name="date" id="date" required>
                                     </div>
                                   </div>
                                   <div class="mb-4">
@@ -405,7 +421,23 @@
                     </div>
                 </div>
             </div>
-            
+            <script>
+                    
+                document.querySelector('.dropdown button').textContent = 'Flat Offer';
+
+               document.getElementById('percentageOffer').addEventListener('click', function () {
+               // Change the text content of the button to "Percentage Offer"
+               document.querySelector('.dropdown button').textContent = 'Percentage Offer';
+               document.getElementById('offerTypeLabel').textContent = 'Percentage Offer'
+               document.getElementById('offerTypeInput').value = 'Percentage Offer'
+               });
+
+               document.getElementById('flatOffer').addEventListener('click',()=>{
+                document.querySelector('.dropdown button').textContent = 'Flat Offer'
+                document.getElementById('offerTypeLabel').textContent = 'Flat Offer'
+                document.getElementById('offerTypeInput').value = 'Flat Offer'
+               })
+       </script>
             <div class="pagination-area mt-30 mb-50">
                 <nav aria-label="Page navigation example">
                     <ul class="pagination justify-content-start">

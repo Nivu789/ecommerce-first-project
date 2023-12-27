@@ -226,9 +226,11 @@
                             <div class="col">
                                 <div class="card card-user">
                                     <div class="card-header">
-                                        
-                                            <a href="#" class="btn btn-sm btn-brand rounded font-sm mt-15 d-flex align-items-center" 
+                                            <%if(categoryData[i].discountPercentage===0&&categoryData[i].flatOfferAmount===0){%>
+                                                <a href="#" class="btn btn-sm btn-brand rounded font-sm mt-15 d-flex align-items-center" 
                                              data-bs-toggle="modal" data-bs-target="#offerModal" onclick="getCategoryId('<%=categoryData[i]._id%>')"><i class="fa-solid fa-plus"></i>Add Offer</a>
+                                                <%}%>
+                                            
                                             
                                         
                                         <!-- <img class="img-md img-avatar" src="/admin-assets/imgs/people/avatar1.jpg" alt="User pic"> -->
@@ -243,7 +245,7 @@
                                             
                                             
                                              
-                                             <%if(categoryData[i].discountPercentage){%>
+                                             <%if(categoryData[i].discountPercentage||categoryData[i].flatOfferAmount){%>
                                                 <a href="#" class="btn btn-sm btn-brand rounded font-sm mt-15 d-flex align-items-center" 
                                              data-bs-toggle="modal" data-bs-target="#editOfferModal" onclick="EditOffer('<%=categoryData[i]._id%>',event)"><i class="fa-solid"></i>Edit Offer</a>
                                                 
@@ -268,10 +270,27 @@
                 }
 
                 function saveResult(){
-                    const offerPercentage = document.getElementById('offerInPercentage').value;
-                    const offerExpiry = document.getElementById('offerExpiry').value;
-
-                    fetch('/admin/savecategoryoffers',{
+                    let offerTypeAmount;
+                    const offerType = document.getElementById('offerTypeButton');
+                    if(offerType.textContent==='Percentage Offer'){
+                        const offerPercentage = document.getElementById('offerInPercentage').value;
+                        const offerExpiry = document.getElementById('offerExpiry').value;
+                        if(offerPercentage==''||offerExpiry==''){
+                        const alertPlaceholder = document.getElementById('liveAlertPlaceholder')
+                            console.log("ALERT")
+                              const wrapper = document.createElement('div')
+                              wrapper.innerHTML = [
+                                `<div class="alert alert-danger" role="alert">`,
+                                `   <div>Fill in the details</div>`,
+                                '</div>'
+                              ].join('')
+                                
+                              alertPlaceholder.append(wrapper)
+                              setTimeout(() => {
+                                wrapper.remove(); // Remove the alert element from the DOM
+                                }, 2000);
+                    }else{
+                        fetch('/admin/savecategoryoffers',{
                         method:"POST",
                         headers:{
                             'Content-Type':'application/json'
@@ -292,6 +311,54 @@
                         console.log(error)
                     })
                     }
+                    }else if(offerType.textContent==='Flat Offer'){
+                        const flatAmount = document.getElementById('offerInPercentage').value;
+                        const offerExpiry = document.getElementById('offerExpiry').value;
+                        if(flatAmount==''||offerExpiry==''){
+                        const alertPlaceholder = document.getElementById('liveAlertPlaceholder')
+                            console.log("ALERT")
+                              const wrapper = document.createElement('div')
+                              wrapper.innerHTML = [
+                                `<div class="alert alert-danger" role="alert">`,
+                                `   <div>Fill in the details</div>`,
+                                '</div>'
+                              ].join('')
+                                
+                              alertPlaceholder.append(wrapper)
+                              setTimeout(() => {
+                                wrapper.remove(); // Remove the alert element from the DOM
+                                }, 2000);
+
+                    }else{
+                        fetch('/admin/savecategoryoffersflat',{
+                        method:"POST",
+                        headers:{
+                            'Content-Type':'application/json'
+                        },
+                        body:JSON.stringify({
+                            result:flatAmount,
+                            categoryId:categoryId,
+                            offerExpiry:offerExpiry
+                        })
+                    }).then(response=>{
+                        if(response.ok){
+                            console.log("Success")
+                            window.location.href = '/admin/categoryoffers'
+                        }else{
+                            console.log("Error")
+                        }
+                    }).catch(error=>{
+                        console.log(error)
+                    }) 
+                    }
+                    
+                    }
+                }
+                    // const offerPercentage = document.getElementById('offerInPercentage').value;
+                    // const offerExpiry = document.getElementById('offerExpiry').value;
+                    // console.log(offerPercentage)
+                    // console.log(offerExpiry)
+                    
 
 
                     function deleteCategoryOffer(categoryId,event){
@@ -323,6 +390,7 @@
                     }
 
                     let forEditingCategory;
+                    let offerPercentage;
                     function EditOffer(categoryId,event){
                         forEditingCategory = categoryId;
                         console.log(categoryId)
@@ -343,18 +411,39 @@
                                 console.log("Error")
                             }
                         }).then(data=>{
-                            const offerPercentage = data.offerPercentage
+                            offerPercentage = data.offerPercentage
                             console.log(offerPercentage)
                             console.log(document.getElementById('offerInPercentage1'))
-                            document.getElementById('offerInPercentage1').value = offerPercentage
+                            if(offerPercentage==0){
+                                document.getElementById('offerInPercentage1').value = data.flatOfferAmount
+                                document.getElementById('offerLabelType').textContent = "Flat Offer Amount"
+                            }else{
+                                document.getElementById('offerInPercentage1').value = offerPercentage
+                            }
+                            
+                            const offerExpiry = new Date(data.offerExpiry)
+                            const year = offerExpiry.getFullYear();
+                            const month = offerExpiry.getMonth()+1;
+                            const day = offerExpiry.getDate();
+                            const formattedDate = `${year}-${month < 10 ? '0' : ''}${month}-${day < 10 ? '0' : ''}${day}`;
+                            document.getElementById('edit_offerExpiry').value = formattedDate
+                            
                             console.log('Element after setting value:', document.getElementById('offerInPercentage'));
                         }).catch(error=>{
                             console.log(error)
                         })
                     }
 
+                    let newOfferPercentage;
+                    let newFlatAmount;
                     function commitEditCategoryOffer(categoryId){
-                        const newOfferPercentage = document.getElementById('offerInPercentage1')
+                        if(offerPercentage==0){
+                           newOfferPercentage = 0; 
+                           newFlatAmount = document.getElementById('offerInPercentage1').value
+                        }else{
+                            newOfferPercentage = document.getElementById('offerInPercentage1')
+                        }
+                        
                         fetch('/admin/commit-edit-category-offer',{
                             method:"POST",
                             headers:{
@@ -362,7 +451,9 @@
                             },
                             body:JSON.stringify({
                                 categoryId:forEditingCategory,
-                                newOfferPercentage:newOfferPercentage.value
+                                newOfferPercentage:newOfferPercentage.value,
+                                date:document.getElementById('edit_offerExpiry').value,
+                                newFlatAmount:newFlatAmount
                             })
                         }).then(res=>{
                             if(res.ok){
@@ -380,8 +471,12 @@
                             console.log(error)
                         })
                     }
+
+
+                   
              
             </script>
+            
             
             <!-- modal here -->
             <div class="modal fade" id="offerModal" tabindex="-1" aria-labelledby="exampleModalLabel"
@@ -389,20 +484,30 @@
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                            <h1 class="modal-title fs-5" id="exampleModalLabel">Add Category Offer</h1>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
+                        <div id="liveAlertPlaceholder"></div>
                         <div class="modal-body">
+                            <div class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" id="offerTypeButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                  Offer type
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" id="percentageOffer">Percentage Offer</a></li>
+                                  <li><a class="dropdown-item" href="#" id="flatOffer">Flat Offer</a></li>
+                                </ul>
+                              </div>
                             <div class="mb-3">
-                                <label for="exampleInputEmail1" class="form-label">Offer In Percentage</label>
+                                <label for="exampleInputEmail1" class="form-label" id="offerTypeLabel">Offer In Percentage</label>
                                 <input type="text" class="form-control" aria-describedby="emailHelp"
-                                    id="offerInPercentage">
+                                    id="offerInPercentage" required>
 
                             </div>
                             <div class="mb-3">
                                 <label for="exampleInputEmail1" class="form-label">Expiry Date</label>
                                 <input type="date" class="form-control" aria-describedby="emailHelp"
-                                    id="offerExpiry">
+                                    id="offerExpiry" required>
 
                             </div>
                         
@@ -413,9 +518,24 @@
                         </div>
                     </div>
                 </div>
+                
             </div>
             
-            
+            <script>
+                    
+                    document.querySelector('.dropdown button').textContent = 'Percentage Offer';
+
+                   document.getElementById('percentageOffer').addEventListener('click', function () {
+                   // Change the text content of the button to "Percentage Offer"
+                   document.querySelector('.dropdown button').textContent = 'Percentage Offer';
+                   document.getElementById('offerTypeLabel').textContent = 'Percentage Offer'
+                   });
+
+                   document.getElementById('flatOffer').addEventListener('click',()=>{
+                    document.querySelector('.dropdown button').textContent = 'Flat Offer'
+                    document.getElementById('offerTypeLabel').textContent = 'Flat Offer'
+                   })
+           </script>
             <!-- edit offer model -->
             <div class="modal fade" id="editOfferModal" tabindex="-1" aria-labelledby="exampleModalLabel"
                 aria-hidden="true">
@@ -427,7 +547,7 @@
                         </div>
                         <div class="modal-body">
                             <div class="mb-3">
-                                <label for="exampleInputEmail1" class="form-label">Offer In Percentage</label>
+                                <label for="exampleInputEmail1" class="form-label" id="offerLabelType">Offer In Percentage</label>
                                 <input type="text" class="form-control" aria-describedby="emailHelp"
                                     id="offerInPercentage1">
 
@@ -435,7 +555,7 @@
                             <div class="mb-3">
                                 <label for="exampleInputEmail1" class="form-label">Expiry Date</label>
                                 <input type="date" class="form-control" aria-describedby="emailHelp"
-                                    id="offerExpiry">
+                                    id="edit_offerExpiry" name="date">
 
                             </div>
                         

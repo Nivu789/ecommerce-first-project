@@ -223,8 +223,18 @@
                                 <ul class="list-group list-group-flush">
                                     <%if(couponData.length!='undefined'){%>
                                         <%for(i=0;i<couponData.length;i++){%>
-                                            <li class="list-group-item">
+                                            <li class="list-group-item d-flex justify-content-center">
                                                 <%=couponData[i].couponcode%>
+                                                <%if(couponData[i].discount!=0){%>
+                                                    <h3><span class="position-absolute top-50 translate-middle badge rounded-pill bg-danger" style="margin-left: 200px;">
+                                                        ₹<%=couponData[i].discount%>Flat Off
+                                                      </span></h3>
+                                                    <%}else{%>
+                                                        <h3><span class="position-absolute top-50 translate-middle badge rounded-pill bg-danger" style="margin-left: 200px;">
+                                                            <%=couponData[i].offerPercentage%>% Off 
+                                                          </span></h3>
+                                                        <%}%>
+                                                
                                             </li>
                                             <%}%>
                                                 <%}else{%>
@@ -303,16 +313,36 @@
                                 couponCollapse.hide();
                                 document.getElementById('applybutton').disabled = true;
                                 document.getElementById('totalPriceElement').textContent = `₹ ${data.newAmount}`;
-                                document.getElementById('couponapplied').textContent = `${data.couponcode}`
+                                document.getElementById('couponapplied').textContent = `${data.couponcode} (-₹${data.discount})`
                                 document.getElementById('totalAmount').value = data.newAmount
                                 document.getElementById('couponPlaceOrder').value = `${data.couponcode}`
+                                const couponAppliedElement = document.getElementById('couponapplied')
                                 // localStorage.setItem('totalAfterCouponApply',data.newAmount)
+                                if (couponAppliedElement.textContent.includes(data.couponcode)) {
+                                    // If true, add a badge inside the td tag
+                                    const badge = document.createElement('span');
+                                    badge.className = 'couponBadge'; // You can customize the class name as needed
+                                    badge.textContent = 'X';
+                                    badge.style.borderRadius = "100%"
+                                    badge.style.backgroundColor = "red";
+                                    badge.style.display = "inline-block"
+                                    badge.style.width = "20px"
+                                    badge.style.cursor = "pointer";
+                                    couponAppliedElement.appendChild(badge);
+                                }
                             }
+                            const couponBadge = document.querySelector(".couponBadge");
+                                    console.log(couponBadge)
+                                    couponBadge.addEventListener('click',()=>{
+                                        window.location.reload()
+                    })
                             // Now you can use data.totalPrice in your frontend
                         }).catch(error => {
                             console.log(error)
                         })
                     }
+
+                    
                 </script>
                 <!-- <script>
                     // Define a function to be executed on DOMContentLoaded

@@ -16,6 +16,7 @@ const Wishlist = require('../models/wishlistModel');
 const offerExpiry = require('../functions/offerExpiry')
 const Banner = require('../models/bannerModel')
 const Brand = require('../models/brandModel')
+const bcrypt = require('bcrypt')
 
 var instance = new Razorpay({
     key_id: process.env.RAZORPAY_ID,
@@ -50,11 +51,15 @@ const getHome = async(req,res) =>{
         const userData = await User.findOne({email:req.session.email}).populate('cart.productId')
         const bannerData = await Banner.find({})
         const brandData = await Brand.find({})
+        console.log(req.session.email);
         if(userData){
+            console.log(userData);
             const userId = userData._id
-            const wishListData = await Wishlist.findOne({userId:userId})
+            const wishListData = await Wishlist.findOne({userId:userId}).populate('products.productId')
+            console.log(wishListData)
             res.render('home',{product,category,userData,wishListData,bannerData,brandData})
         }else{
+            console.log('fas');
             res.render('home',{product,category,userData,bannerData,brandData})
         }
         
@@ -66,14 +71,15 @@ const getHome = async(req,res) =>{
 
   const loadHome = async(req,res) =>{
     try {
-        const email = req.body.email;
+        const email = req.session.email||req.body.email;
         const password = req.body.password;
         const userData = await User.findOne({email:email});
         
         if(userData){
             if(userData.is_verified==true){
                 if(userData.is_active==true){
-                    if(userData.password===password){
+                    const passwordMatch = await bcrypt.compare(password, userData.password);
+                    if(passwordMatch){
                         const product = await Product.find({is_active:true})
                         const category = await Category.find({is_active:true})
                         req.session.email = userData.email
@@ -109,6 +115,7 @@ const loadRegister = (req,res) =>{
 
 const insertUser = async(req,res) =>{
     try {
+        console.log("Wroking")
         const email = req.body.email;
         const password = req.body.password;
         const cpassword = req.body.cpassword;
@@ -167,11 +174,14 @@ const insertUser = async(req,res) =>{
             if(req.session.referralAmount){
                 amountAddedInWallet = req.session.referralAmount
             }
+
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(req.body.password,salt)
             const userData = {
                 name:req.body.name,
                 email:req.body.email,
                 phone:req.body.phone,
-                password:req.body.password,
+                password:hashedPassword,
                 is_admin:0,
                 is_active:true,
                 is_verified:true,
@@ -325,7 +335,8 @@ const setPassword = async(req,res) =>{
             res.render('resetpassword',{message:"Password didn't match"})
         }else{
             // await User.findOneAndUpdate({email:email},{$set:{otp:null}})
-            const userData = await User.findOneAndUpdate({email:req.session.email},{$set:{password:password}});
+            const hashedPassword = await bcrypt.hash(password,10)
+            const userData = await User.findOneAndUpdate({email:req.session.email},{$set:{password:hashedPassword}});
         if(userData){
             res.redirect('/')
         }else{
@@ -461,6 +472,8 @@ const verifyResendOtp = async(req,res) =>{
 const loadAccount = async(req,res) =>{
     try {
         // const userData = await User.findOne({email:req.session.email})
+        // console.log(req.session.email)
+        // console.log(userData)
         const userData = await User.findOne({_id:req.query.id})
         const orderData = await Order.find({userId:userData._id}).populate('products.productId').sort({orderDate:-1})
         const userId = userData._id
@@ -745,10 +758,18 @@ const applyCoupon = async(req,res) =>{
         }else{
             
             if(couponData){
-            const newAmount = totalPrice-couponData.discount
-            console.log(newAmount)
-            // await Coupon.findOneAndUpdate({couponcode:couponCode},{$push:{redeemedUsers:userId}})
-            res.json({newAmount:newAmount,couponcode:couponCode,discount:couponData.discount})
+                if(couponData.discount>0){
+                    const newAmount = totalPrice-couponData.discount
+                    console.log(newAmount)
+                    // await Coupon.findOneAndUpdate({couponcode:couponCode},{$push:{redeemedUsers:userId}})
+                    res.json({newAmount:newAmount,couponcode:couponCode,discount:couponData.discount}) 
+                }else{
+                    const offerPercentage = couponData.offerPercentage;
+                    const amountToDeduce = totalPrice * (offerPercentage/100)
+                    const newAmount = totalPrice - amountToDeduce
+                    res.json({newAmount:newAmount,couponcode:couponCode,discount:amountToDeduce}) 
+                }
+            
             }else{
                 res.json({status:"failed"})
             }
@@ -869,6 +890,23 @@ const commitEditAddress = async(req,res) =>{
     }
 }
 
+const deleteAddress = async(req,res) =>{
+    try {
+        const addressId = req.query.id;
+        console.log(addressId)
+        const email = req.session.email;
+        const userData = await User.findOneAndUpdate(
+            {email:email},{$pull:{address:{_id:addressId}}},
+
+        )
+        if(userData){
+            res.redirect(`/account?id=${userData._id}`)
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 const editAddressFromCheckout = async(req,res) =>{
     try {
         const id = req.query.id;
@@ -983,14 +1021,20 @@ const updateInfo = async(req,res) =>{
         }
         console.log(errors)
         if (errors.length === 0) {
-            // If no errors, consider it a success
+            // If no errors, consider it a 
+            req.session.email = email
             res.json({ success: true });
             if(newpassword.length>0){
-                await User.findOneAndUpdate({email:req.session.email},{$set:{name:name,email:email,password:newpassword}})
-            }else{
-                await User.findOneAndUpdate({email:req.session.email},{$set:{name:name,email:email}})
-            }
+               
             
+                await User.findOneAndUpdate({email:sessionEmail},{$set:{name:name,email:email,password:newpassword}})
+                
+            }else{
+               
+                await User.findOneAndUpdate({email:sessionEmail},{$set:{name:name,email:email}})
+                
+            }
+           
             // res.redirect(`/account?id=${userData._id}`)
           } else {
             // If there are errors, respond with error messages
@@ -1196,4 +1240,4 @@ module.exports = {loadLogin,loadRegister,insertUser,loadHome,verifyOtp,forgotPas
     getCart,addToCart,removeCartItem,getCheckoutProducts,editAddress,addAddress,commitAddAddress,commitEditAddress,
     updateQuantity,getHome,logoutUser,getOrderDetails,updateInfo,clearAllCart,editAddressFromCheckout,
     commitEditAddressFromCheckout,getProductResults,filterByAscending,filterByDescending,applyCoupon,payByWallet,
-    applyReferral,getWishlist,addToWishlist,addToCartFromWishlist,removeFromWishlist}
+    applyReferral,getWishlist,addToWishlist,addToCartFromWishlist,removeFromWishlist,deleteAddress}

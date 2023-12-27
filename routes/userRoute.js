@@ -10,7 +10,7 @@ const secret = crypto.randomBytes(64).toString('hex');
 
 userRoute.use(session({
     secret:secret,
-    resave: false,
+    resave: true,
     saveUninitialized: true,
 }))
 const Razorpay = require('razorpay')
@@ -75,6 +75,8 @@ userRoute.post('/addaddress',userFunctions.commitAddAddress)
 userRoute.get('/editaddress',userAuth.isLogin,userFunctions.editAddress)
 
 userRoute.post('/editaddress',userFunctions.commitEditAddress)
+
+userRoute.get('/deleteaddress',userFunctions.deleteAddress)
 
 userRoute.post('/update-quantity/:quantity/:index',userFunctions.updateQuantity)
 

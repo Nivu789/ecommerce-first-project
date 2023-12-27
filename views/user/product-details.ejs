@@ -11,9 +11,13 @@
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta property="og:title" content="">
-    <meta property="og:type" content="">
-    <meta property="og:url" content="">
-    <meta property="og:image" content="">
+    <meta property="og:type" content="website">
+    <meta property="og:image:type" content="image/png">
+    
+    <meta property="og:description" content="Hey, Check this product out!">
+    <meta property="og:image" itemprop="image" content="\assets\imgs\companion-high-resolution-logo-transparent.png">
+    <meta property="og:image:width" content="300">
+    <meta property="og:image:height" content="300">
     <!-- Favicon -->
     <link rel="shortcut icon" type="image/x-icon" href="assets/imgs/theme/favicon.svg">
     <!-- Template CSS -->
@@ -374,11 +378,40 @@
                                                                         aria-label="Add To Wishlist"
                                                                         class="action-btn hover-up"
                                                                         href="shop-wishlist.html"><i
-                                                                            class="fi-rs-heart"></i></a></div>
+                                                                            class="fi-rs-heart"></i></a>
+                                                                            
+                                                                            <a
+                                                                            aria-label="Add To Wishlist"
+                                                                            class="action-btn hover-up"
+                                                                            href="#" id="share-link"><i
+                                                                                class="fi-rs-share"></i></a></div>
+
+                                                                           
                                                                 <!-- <a aria-label="Compare" class="action-btn hover-up"
                                                     href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> -->
                                                 </div>
+                                               
                                         </form>
+                                        <script>
+                                            const shareData = {
+                                            title: "Companion",
+                                            text: "Hey, Check this product out!",
+                                            url: window.location.href,
+                                          };
+                                          
+                                          const btn = document.querySelector("#share-link");
+                                          const resultPara = document.querySelector(".result");
+                                          
+                                          // Share must be triggered by "user activation"
+                                          btn.addEventListener("click", async () => {
+                                            try {
+                                              await navigator.share(shareData);
+                                              resultPara.textContent = "MDN shared successfully";
+                                            } catch (err) {
+                                              resultPara.textContent = `Error: ${err}`;
+                                            }
+                                          });
+                                        </script>
                                     </div>
                                     <script>
                                         function incrementQuantity(inputId, maxQuantity) {
@@ -612,48 +645,7 @@
                         </div>
                         <div class="col-12">
                             <div class="row related-products">
-                                <%for(i=0;i<4;i++){%>
-                                    <div class="col-lg-3 col-md-4 col-12 col-sm-6">
-                                    <div class="product-cart-wrap small hover-up">
-                                        <div class="product-img-action-wrap">
-                                            <div class="product-img product-img-zoom">
-                                                <a href="shop-product-right.html" tabindex="0">
-                                                    <img class="default-img" src="<%=fullProductData[i].image[0]%>"
-                                                        alt="">
-                                                    <img class="hover-img" src="assets/imgs/shop/product-2-2.jpg"
-                                                        alt="">
-                                                </a>
-                                            </div>
-                                            <div class="product-action-1">
-                                                <a aria-label="Quick view" class="action-btn small hover-up"
-                                                    data-bs-toggle="modal" data-bs-target="#quickViewModal
-"><i class="fi-rs-search"></i></a>
-                                                <a aria-label="Add To Wishlist" class="action-btn small hover-up"
-                                                    href="shop-wishlist.html" tabindex="0"><i
-                                                        class="fi-rs-heart"></i></a>
-                                                <a aria-label="Compare" class="action-btn small hover-up"
-                                                    href="shop-compare.html" tabindex="0"><i
-                                                        class="fi-rs-shuffle"></i></a>
-                                            </div>
-                                            <div class="product-badges product-badges-position product-badges-mrg">
-                                                <span class="hot">Hot</span>
-                                            </div>
-                                        </div>
-                                        <div class="product-content-wrap">
-                                            <h2><a href="shop-product-right.html" tabindex="0">Ulstra Bass
-                                                    Headphone</a></h2>
-                                            <div class="rating-result" title="90%">
-                                                <span>
-                                                </span>
-                                            </div>
-                                            <div class="product-price">
-                                                <span>$238.85 </span>
-                                                <span class="old-price">$245.8</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                    <%}%>
+                                
                                 
                                 
                     <div class="banner-img banner-big wow fadeIn f-none animated mt-50">

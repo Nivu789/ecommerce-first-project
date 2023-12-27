@@ -293,6 +293,7 @@
                                                                 <th>Actions</th>
                                                             </tr>
                                                         </thead>
+                                                        
                                                         <tbody>
                                                             <%for(i=0;i<orderData.length;i++){%>
                                                                 <tr>
@@ -300,7 +301,12 @@
                                                                         <%=orderData[i].orderId%>
                                                                     </td>
                                                                     <td>
-                                                                        <%=orderData[i].orderDate%>
+                                                                        <% const orderDate = new Date(orderData[i].orderDate); %>
+                                                                        <% const year = orderDate.getFullYear(); %>
+                                                                        <% const month = orderDate.getMonth() + 1; %>
+                                                                        <% const day = orderDate.getDate(); %>
+                                                                        <% const formattedDate = `${year}-${month < 10 ? '0' : ''}${month}-${day < 10 ? '0' : ''}${day}`; %>
+                                                                        <%= formattedDate %>
                                                                     </td>
                                                                     <td>
                                                                         <%=orderData[i].orderStatus%>
@@ -421,7 +427,9 @@
                                                                     </p>
                                                                     <a href="/editaddress?id=<%=userData.address[i]._id%>"
                                                                         class="btn-small">Edit</a>
-
+                                                                        &nbsp;&nbsp;
+                                                                        <a href="/deleteaddress?id=<%=userData.address[i]._id%>"
+                                                                            class="btn-small">Delete</a>
                                                                 </div>
                                                             </div>
                                                             <%}%>
@@ -430,6 +438,7 @@
 
 
                                             </div>
+                                        
                                             <!-- <div class="col-lg-6">
                                                 <div class="card">
                                                     <div class="card-header">
