@@ -134,4 +134,12 @@ userRoute.post('/add-to-cart-from-wishlist',userAuth.isLogin,userFunctions.addTo
 
 userRoute.post('/remove-from-wishlist',userFunctions.removeFromWishlist)
 
+userRoute.post('/submit-review',userFunctions.submitProductReview)
+
+userRoute.post('/reply-to-review',userAuth.isLogin,userFunctions.postReviewReply)
+
+userRoute.get('/view-all-products',userFunctions.getAllProducts)
+
+
+
 module.exports = userRoute;

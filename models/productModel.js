@@ -35,6 +35,43 @@ const products = mongoose.Schema({
     discountPercentage:{
         type:Number,
         default:0
+    },
+    productReview:[
+        {
+            comment:{
+                type:String,
+            },
+            userId:{
+                type:mongoose.Schema.Types.ObjectId,
+                ref:'customer'
+            },
+            rating:{
+                type:Number
+            },
+            time:{
+                type:Date,
+                
+            },
+            replies:[
+                {
+                    comment:{
+                        type:String
+                    },
+                    userId:{
+                        type:mongoose.Schema.Types.ObjectId
+                    },
+                    time:{
+                        type:Date
+                    }
+                }
+                
+            ]
+        }
+
+    ],
+    avgRating:{
+        type:Number,
+        default:0
     }
 })
 

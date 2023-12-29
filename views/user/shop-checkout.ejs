@@ -224,7 +224,7 @@
                                     <%if(couponData.length!='undefined'){%>
                                         <%for(i=0;i<couponData.length;i++){%>
                                             <li class="list-group-item d-flex justify-content-center">
-                                                <%=couponData[i].couponcode%>
+                                                <h4><%=couponData[i].couponcode%></h4>
                                                 <%if(couponData[i].discount!=0){%>
                                                     <h3><span class="position-absolute top-50 translate-middle badge rounded-pill bg-danger" style="margin-left: 200px;">
                                                         ₹<%=couponData[i].discount%>Flat Off

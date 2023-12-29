@@ -143,4 +143,6 @@ adminRoute.delete('/deleteImage/:productId/:index',adminAuth.isLogin, async (req
 
   adminRoute.post('/savecategoryoffersflat',adminFunctions.setFlatDiscountCategory)
 
+  adminRoute.post('/remove-coupon',adminFunctions.removeCoupon)
+
 module.exports = adminRoute;

@@ -909,18 +909,40 @@ const deleteCategory = async (req, res) => {
 
     const saveEditedCoupon = async (req, res) => {
         try {
-            const { couponCode, discount, minPurchase, expiryDate, description, couponId } = req.body
+            let couponData;
+            const { couponCode, discount, minPurchase, expiryDate, description, couponId ,editOfferType} = req.body
             console.log(couponId)
-            const couponData = await Coupon.findByIdAndUpdate({ _id: couponId }, {
-                $set: {
-                    couponcode: couponCode, discount: discount,
-                    minPurchase: minPurchase, expiryDate: expiryDate, description: description, limit: 1
-                }
-            })
+            if(editOfferType==='Flat Offer'){
+                couponData = await Coupon.findByIdAndUpdate({ _id: couponId }, {
+                    $set: {
+                        couponcode: couponCode, discount: discount,offerPercentage:0,
+                        minPurchase: minPurchase, expiryDate: expiryDate, description: description, limit: 1
+                    }
+                })
+            }else if(editOfferType==='Percentage Offer'){
+                couponData = await Coupon.findByIdAndUpdate({ _id: couponId }, {
+                    $set: {
+                        couponcode: couponCode, discount: 0,offerPercentage:discount,
+                        minPurchase: minPurchase, expiryDate: expiryDate, description: description, limit: 1
+                    }
+                })
+            }
+            
             if (couponData) {
                 console.log("SUCESS YEAH")
                 res.redirect('/admin/coupons')
             }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+
+    const removeCoupon = async(req,res) =>{
+        try {
+            const couponId = req.body.couponId;
+            await Coupon.findByIdAndDelete({_id:couponId});
+            res.redirect('/admin/coupons')
         } catch (error) {
             console.log(error)
         }
@@ -1288,5 +1310,5 @@ const deleteCategory = async (req, res) => {
         unblockBrand, editBrand, commitEditBrand, getProductOffers, commitProductOffers, getCategoryOffers,
         commitCategoryOffers, getAllCoupons, createCoupon, editCoupon, saveEditedCoupon, deleteCategoryOffer,
         editCategoryOffers, commitEditCategoryOffers, getBannerManagement, 
-        addBanner, editBanner, editProductOffer, deleteProductOffer,getSalesReport,filterReport,setFlatDiscountCategory
+        addBanner, editBanner, editProductOffer, deleteProductOffer,getSalesReport,filterReport,setFlatDiscountCategory,removeCoupon
     }

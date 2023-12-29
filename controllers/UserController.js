@@ -359,7 +359,10 @@ const getProductDetails = async(req,res) =>{
         const id = req.query.id;
         
         const email = req.session.email
-        const productData = await Product.findOne({_id:id}).populate('brand')
+        const productData = await Product.findOne({_id:id}).populate('brand').populate('productReview.userId').populate({
+            path: 'productReview.replies.userId',
+            model: 'customer' 
+        });
         const userData = await User.findOne({email:email})
         const fullProductData = await Product.find({})
         if(userData){
@@ -1235,9 +1238,108 @@ const applyReferral = async(req,res) =>{
     }
 }
 
+const submitProductReview = async(req,res) =>{
+    try {
+        const {comment,rating,productId} = req.body;
+        console.log(rating)
+        const userData= await User.findOne({email:req.session.email})
+        let totalRating = 0;
+        let reviewCount = 0;
+        const productData = await Product.findById({_id:productId});
+        if(productData.productReview.length>0){
+            productData.productReview.forEach((review)=>{
+                totalRating+=review.rating
+                reviewCount+=1;
+            })
+        }
+
+        console.log("TOTAL RATING",totalRating);
+        console.log("review count",reviewCount)
+        const averageRating = Math.ceil(totalRating/reviewCount);
+        console.log("AVERAGE RATING",averageRating)
+
+        const userId = userData._id;
+        const addReview = await Product.findByIdAndUpdate(
+            { _id: productId },
+            {
+                $push: {
+                    productReview: {
+                        comment: comment,
+                        userId: userId,
+                        rating: rating,
+                        time: Date.now()
+                    }
+                },
+                $set: {
+                    avgRating: averageRating
+                }
+            },
+            { new: true }
+        );
+        if(addReview){
+            console.log("DONE")
+            res.json({message:"Review Added"})
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+const postReviewReply = async(req,res) =>{
+    try {
+        const userData = await User.findOne({email:req.session.email})
+        const userId = userData._id
+        const {reviewId,reviewReply,productId} = req.body;
+        const productData = await Product.findById({_id:productId})
+
+        const review = productData.productReview.find(
+            (review) => review._id.toString() === reviewId
+        );
+
+        review.replies.push({
+            comment: reviewReply,
+            userId: userId, // Assuming you have user information in the request
+            time: Date.now(),
+        });
+
+        // Save the updated productData
+        await productData.save();
+
+        res.json({message:"Success"})
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+const getAllProducts = async(req,res) =>{
+    try {
+        let productData;
+        if(req.query.sort=='avgRating'){
+            productData = await Product.find({}).sort({avgRating:-1}).populate('categoryid')
+            
+        }else if(req.query.sort=="lowtohigh"){
+            productData = await Product.find({}).sort({salePrice:1}).populate('categoryid');
+        }else if(req.query.sort=="hightolow"){
+            productData = await Product.find({}).sort({salePrice:-1}).populate('categoryid');
+        }
+        
+        if(productData){
+            res.render('all-product',{productData})
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+
+
+
 module.exports = {loadLogin,loadRegister,insertUser,loadHome,verifyOtp,forgotPassword,sendForgotMail,
     resetPassword,setPassword,getProductDetails,resendOtp,verifyResendOtp,loadVerifyOtp,loadOTP,loadAccount,
     getCart,addToCart,removeCartItem,getCheckoutProducts,editAddress,addAddress,commitAddAddress,commitEditAddress,
     updateQuantity,getHome,logoutUser,getOrderDetails,updateInfo,clearAllCart,editAddressFromCheckout,
     commitEditAddressFromCheckout,getProductResults,filterByAscending,filterByDescending,applyCoupon,payByWallet,
-    applyReferral,getWishlist,addToWishlist,addToCartFromWishlist,removeFromWishlist,deleteAddress}
+    applyReferral,getWishlist,addToWishlist,addToCartFromWishlist,removeFromWishlist,deleteAddress,submitProductReview,
+    postReviewReply,getAllProducts
+}

@@ -244,7 +244,7 @@
                                                             <span class="text text-muted"><%=orderData[i].paymentMethod%></span>
                                                         </div>
                                                     </td>
-                                                    <td><%=orderData[i].orderDate%></td>
+                                                    <td><%=orderData[i].orderDate.toLocaleString()%></td>
                                                     <td class="text-end">
                                                         <a href="/admin/orderdetails?id=<%=orderData[i]._id%>" class="btn btn-sm btn-light font-sm rounded">Details</a>
                                                     </td>

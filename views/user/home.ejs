@@ -916,7 +916,7 @@
                             <img class="border-radius-10" src="<%=bannerData[0].image[0]%>" alt="" style="height: 500px;">
                             <div class="banner-text">
                                 <!-- <span>Accessories</span> -->
-                                <h4><%=bannerData[0].bannerText%></h4>
+                                <h4 class="text-white"><%=bannerData[0].bannerText%></h4>
                                 <a href="shop-grid-right.html">Shop Now <i class="fi-rs-arrow-right"></i></a>
                             </div>
                         </div>
@@ -924,7 +924,7 @@
                             <img class="border-radius-10" src="<%=bannerData[1].image[0]%>" alt="">
                             <div class="banner-text">
                                 <span>Smart Offer</span>
-                                <h4><%=bannerData[1].bannerText%></h4>
+                                <h4 class="text-white"><%=bannerData[1].bannerText%></h4>
                                 <a href="shop-grid-right.html">Shop Now <i class="fi-rs-arrow-right"></i></a>
                             </div>
                         </div>
@@ -978,17 +978,17 @@
             <div class="container">
                 <div class="tab-header">
                     <ul class="nav nav-tabs" id="myTab" role="tablist">
-                        <li class="nav-item" role="presentation">
+                        <!-- <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="nav-tab-one" data-bs-toggle="tab" data-bs-target="#tab-one" type="button" role="tab" aria-controls="tab-one" aria-selected="true">Featured</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
+                        </li> -->
+                        <!-- <li class="nav-item" role="presentation">
                             <button class="nav-link" id="nav-tab-two" data-bs-toggle="tab" data-bs-target="#tab-two" type="button" role="tab" aria-controls="tab-two" aria-selected="false">Popular</button>
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="nav-tab-three" data-bs-toggle="tab" data-bs-target="#tab-three" type="button" role="tab" aria-controls="tab-three" aria-selected="false">New added</button>
-                        </li>
+                        </li> -->
                     </ul>
-                    <a href="#" class="view-more d-none d-md-flex">View More<i class="fi-rs-angle-double-small-right"></i></a>
+                    
                 </div>
                 <section class="mb-50">
                     <div class="container">
@@ -1005,6 +1005,21 @@
                     </div>
                 </section>
                 <!--End nav-tabs-->
+                <div class="tab-header">
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                        <!-- <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="nav-tab-one" data-bs-toggle="tab" data-bs-target="#tab-one" type="button" role="tab" aria-controls="tab-one" aria-selected="true">Featured</button>
+                        </li> -->
+                        <!-- <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="nav-tab-two" data-bs-toggle="tab" data-bs-target="#tab-two" type="button" role="tab" aria-controls="tab-two" aria-selected="false">Popular</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="nav-tab-three" data-bs-toggle="tab" data-bs-target="#tab-three" type="button" role="tab" aria-controls="tab-three" aria-selected="false">New added</button>
+                        </li> -->
+                    </ul>
+                    <a href="/view-all-products" class="view-more d-none d-md-flex">View All Products<i class="fi-rs-angle-double-small-right"></i></a>
+                </div>
+                
                 <div class="tab-content wow fadeIn animated" id="myTabContent">
                     <div class="tab-pane fade show active" id="tab-one" role="tabpanel" aria-labelledby="tab-one">
                         <!-- ------------------------------------------------- -->
@@ -1024,7 +1039,7 @@
                                         <div class="product-action-1">
                                             <a aria-label="Quick view" class="action-btn hover-up" data-bs-toggle="modal" data-bs-target="#quickViewModal"><i class="fi-rs-eye"></i></a>
                                             <%if(locals.userData){%>
-                                                <a aria-label="Add To Wishlist" class="action-btn hover-up" href="#" onclick="addToWishlist('<%=product[i]._id%>','<%=userData._id%>')"><i class="fi-rs-heart"></i></a>
+                                                <a aria-label="Add To Wishlist" class="action-btn hover-up" href="#" onclick="addToWishlist('<%=product[i]._id%>','<%=userData._id%>',event)"><i class="fi-rs-heart"></i></a>
                                                 <%}else{%>
                                                     <a aria-label="Add To Wishlist" class="action-btn hover-up" href="#" onclick=""><i class="fi-rs-heart"></i></a>
                                                     <%}%>
@@ -1036,7 +1051,8 @@
                                         </div>
                                     </div>
                                     <script>
-                                        function addToWishlist(productId,userId){
+                                        function addToWishlist(productId,userId,event){
+                                            event.preventDefault();
                                             fetch('/add-to-wishlist',{
                                                 method:'POST',
                                                 headers:{
@@ -1211,7 +1227,7 @@
                     <img src="<%=bannerData[2].image[0]%>" alt="">
                     <div class="banner-text d-md-block d-none">
                         <h4 class="mb-15 mt-40 text-brand">Repair Services</h4>
-                        <h1 class="fw-600 mb-20">We're an Apple <br>Authorised Service Provider</h1>
+                        <h1 class="fw-600 mb-20"><%=bannerData[2].bannerText%></h1>
                         <a href="shop-grid-right.html" class="btn">Learn More <i class="fi-rs-arrow-right"></i></a>
                     </div>
                 </div>

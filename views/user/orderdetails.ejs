@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,194 +19,361 @@
     <link rel="shortcut icon" type="image/x-icon" href="assets/imgs/theme/favicon.svg">
     <!-- Template CSS -->
     <link rel="stylesheet" href="assets/css/maind134.css?v=3.4">
-    
-    
+    <link rel="stylesheet" href="/assets/css/stars.css">
+
 </head>
+
 <body>
     <%-include('navbar.ejs')%>
-    <div class="container" style="margin-bottom: 200px;">
-        <article class="card">
-            <header class="card-header"> My Orders / Tracking </header>
-            <div class="card-body">
-                <h6><%=orderDetails.orderId%></h6>
-                <article class="card">
-                    <div class="card-body row">
-                        <div class="col"> <strong>Estimated Delivery time:</strong> <br><%=orderDetails.orderDate%></div>
-                        <div class="col"> <strong>Shipping BY:</strong> <br> BLUEDART, | <i class="fa fa-phone"></i> +1598675986 </div>
-                        <div class="col"> <strong>Status:</strong> <br> <%=orderDetails.orderStatus%> </div>
-                        <div class="col"> <strong>Tracking #:</strong> <br> BD045903594059 </div>
+        <div class="container" style="margin-bottom: 200px;">
+            <article class="card">
+                <header class="card-header"> My Orders / Tracking </header>
+                <div class="card-body">
+                    <h6>
+                        <%=orderDetails.orderId%>
+                    </h6>
+                    <article class="card">
+                        <div class="card-body row">
+                            <div class="col"> <strong>Estimated Delivery time:</strong> <br>
+                                <%=orderDetails.orderDate%>
+                            </div>
+                            <div class="col"> <strong>Shipping BY:</strong> <br> BLUEDART, | <i class="fa fa-phone"></i>
+                                +1598675986 </div>
+                            <div class="col"> <strong>Status:</strong> <br>
+                                <%=orderDetails.orderStatus%>
+                            </div>
+                            <div class="col"> <strong>Tracking #:</strong> <br> BD045903594059 </div>
+                        </div>
+                    </article>
+
+                    <div class="track">
+                        <div class="step active"> <span class="icon"> <i class="fa fa-check"></i> </span> <span
+                                class="text">Order confirmed</span> </div>
+                        <div class="step active"> <span class="icon"> <i class="fa fa-user"></i> </span> <span
+                                class="text"> Picked by courier</span> </div>
+                        <div class="step "> <span class="icon"> <i class="fa fa-truck"></i> </span> <span class="text">
+                                On the way </span> </div>
+                        <div class="step"> <span class="icon"> <i class="fa fa-box"></i> </span> <span
+                                class="text">Ready for pickup</span> </div>
                     </div>
-                </article>
-                
-                <div class="track">
-                    <div class="step active"> <span class="icon"> <i class="fa fa-check"></i> </span> <span class="text">Order confirmed</span> </div>
-                    <div class="step active"> <span class="icon"> <i class="fa fa-user"></i> </span> <span class="text"> Picked by courier</span> </div>
-                    <div class="step "> <span class="icon"> <i class="fa fa-truck"></i> </span> <span class="text"> On the way </span> </div>
-                    <div class="step"> <span class="icon"> <i class="fa fa-box"></i> </span> <span class="text">Ready for pickup</span> </div>
-                </div>
-                <form method="post" action="/cancelorder?id=<%=orderDetails._id%>" id="cancelorderform">
-                <hr>
-                <ul class="row">
-            
-                        <%for(j=0;j<orderDetails.products.length;j++){%>
-                            <% const product = orderDetails.products[j]; %>
-                            
-                            <li class="col-md-4">
-                                <figure class="itemside mb-3">
-                                    <div class="aside"><img src="<%= product.productId.image[0] %>" class="img-sm border"></div>
-                                    <figcaption class="info align-self-center">
-                                        <p class="title"><%= product.productId.brand %><br> <%= product.productId.productName %><span>   (<%= product.quantity %>)</span></p> 
-                                    </figcaption>
-                                </figure>
-                            </li>
-                            <%}%>
-                        
-                    
-                    <li>
-                        <table class="table">
-                            <tbody>
-                                <tr>
-                                    <td class="cart_total_label">Shipping</td>
-                                    <td class="cart_total_amount"> <i class="ti-gift mr-5"></i> Free
-                                        Shipping</td>
-                                    
-                                </tr>
-                                <tr>
-                                    <td class="cart_total_label">Total</td>
-                                    <td class="cart_total_amount"><strong><span
-                                                class="font-xl fw-900 text-brand">₹<%= orderDetails.totalAmount %>
-                                                    </span></strong></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <form method="post" action="/cancelorder?id=<%=orderDetails._id%>" id="cancelorderform">
+                        <hr>
+                        <ul class="row">
+
+                            <%for(j=0;j<orderDetails.products.length;j++){%>
+                                <% const product=orderDetails.products[j]; %>
+
+                                    <li class="col-md-4">
+                                        <figure class="itemside mb-3">
+                                            <div class="aside"><img src="<%= product.productId.image[0] %>"
+                                                    class="img-sm border"></div>
+                                            <figcaption class="info align-self-center">
+                                                <p class="title">
+                                                    <%= product.productId.brand %><br>
+                                                        <%= product.productId.productName %><span> (<%= product.quantity
+                                                                    %>)</span>
+                                                </p>
+                                            </figcaption>
+                                            <%if(orderDetails.orderStatus==='Delivered'){%>
+                                                <button class="btn" type="button" data-bs-toggle="modal"
+                                                data-bs-target="#reviewModal"
+                                                onclick="sendProductId('<%=product.productId._id%>')">write a
+                                                review</button>
+                                                <%}%>
+                                        </figure>
+                                    </li>
+                                    <%}%>
+
+
+                                        <li>
+                                            <table class="table">
+                                                <tbody>
+                                                    <tr>
+                                                        <td class="cart_total_label">Shipping</td>
+                                                        <td class="cart_total_amount"> <i class="ti-gift mr-5"></i> Free
+                                                            Shipping</td>
+
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="cart_total_label">Total</td>
+                                                        <td class="cart_total_amount"><strong><span
+                                                                    class="font-xl fw-900 text-brand">₹<%=
+                                                                        orderDetails.totalAmount %>
+                                                                </span></strong></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            <script>
+                                                function cancelOrder(event) {
+                                                    event.preventDefault();
+                                                    const swalWithBootstrapButtons = Swal.mixin({
+                                                        customClass: {
+                                                            confirmButton: "btn btn-success",
+                                                            cancelButton: "btn btn-danger"
+                                                        },
+                                                        buttonsStyling: false
+                                                    });
+                                                    swalWithBootstrapButtons.fire({
+                                                        title: "Are you sure you want to cancel the order?",
+                                                        text: "You won't be able to revert this!",
+                                                        icon: "warning",
+                                                        showCancelButton: true,
+                                                        confirmButtonText: "Yes, cancel order!",
+                                                        cancelButtonText: "No, don't do it!",
+                                                        reverseButtons: true
+                                                    }).then((result) => {
+                                                        if (result.isConfirmed) {
+                                                            swalWithBootstrapButtons.fire({
+                                                                title: "Order Cancelled!",
+                                                                text: "Thank you for shopping",
+                                                                icon: "success"
+                                                            });
+                                                            setTimeout(() => {
+                                                                document.getElementById("cancelorderform").submit();
+                                                            }, 3000);
+
+                                                        } else if (
+                                                            /* Read more about handling dismissals below */
+                                                            result.dismiss === Swal.DismissReason.cancel
+                                                        ) {
+                                                            swalWithBootstrapButtons.fire({
+                                                                title: "No changes were done",
+                                                                text: "Order was not cancelled :)",
+                                                                icon: "error"
+                                                            });
+                                                        }
+                                                    });
+                                                }
+
+                                                function returnOrder(event) {
+                                                    event.preventDefault();
+                                                    const swalWithBootstrapButtons = Swal.mixin({
+                                                        customClass: {
+                                                            confirmButton: "btn btn-success",
+                                                            cancelButton: "btn btn-danger"
+                                                        },
+                                                        buttonsStyling: false
+                                                    });
+                                                    swalWithBootstrapButtons.fire({
+                                                        title: "Are you sure you want to return the order?",
+                                                        text: "You won't be able to revert this!",
+                                                        icon: "warning",
+                                                        showCancelButton: true,
+                                                        confirmButtonText: "Yes, return order!",
+                                                        cancelButtonText: "No, don't do it!",
+                                                        reverseButtons: true
+                                                    }).then((result) => {
+                                                        if (result.isConfirmed) {
+                                                            swalWithBootstrapButtons.fire({
+                                                                title: "Our delivery partners will soon contact you!",
+                                                                text: "Thank you for shopping",
+                                                                icon: "success"
+                                                            });
+                                                            setTimeout(() => {
+                                                                document.getElementById("cancelorderform").submit();
+                                                            }, 3000);
+
+                                                        } else if (
+                                                            /* Read more about handling dismissals below */
+                                                            result.dismiss === Swal.DismissReason.cancel
+                                                        ) {
+                                                            swalWithBootstrapButtons.fire({
+                                                                title: "No changes were done",
+                                                                text: "Order was not returned :)",
+                                                                icon: "error"
+                                                            });
+                                                        }
+                                                    });
+                                                }
+
+                                            </script>
+                                        </li>
+                        </ul>
+                        <hr>
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                            aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <!-- <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1> -->
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="comment-form d-flex flex-column">
+                                            <h4 class="mb-15">Add a review</h4>
+                                            <div class="rate">
+                                                <input type="radio" id="star5" name="rate" value="5" />
+                                                <label for="star5" title="text">5 stars</label>
+                                                <input type="radio" id="star4" name="rate" value="4" />
+                                                <label for="star4" title="text">4 stars</label>
+                                                <input type="radio" id="star3" name="rate" value="3" />
+                                                <label for="star3" title="text">3 stars</label>
+                                                <input type="radio" id="star2" name="rate" value="2" />
+                                                <label for="star2" title="text">2 stars</label>
+                                                <input type="radio" id="star1" name="rate" value="1" />
+                                                <label for="star1" title="text">1 star</label>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-8 col-md-12">
+                                                    <form class="form-contact comment_form" action="#" id="commentForm">
+                                                        <div class="row">
+                                                            <div class="col-12">
+                                                                <div class="form-group">
+                                                                    <textarea class="form-control w-100" name="comment"
+                                                                        id="comment" cols="30" rows="9"
+                                                                        placeholder="Write Comment" required></textarea>
+                                                                </div>
+                                                            </div>
+                                                            <!-- <div class="col-sm-6">
+                                                            <div class="form-group">
+                                                                <input class="form-control" name="name" id="name" type="text"
+                                                                    placeholder="Name" required>
+                                                            </div>
+                                                        </div> -->
+                                                            <!-- <div class="col-sm-6">
+                                                            <div class="form-group">
+                                                                <input class="form-control" name="email" id="email" type="email"
+                                                                    placeholder="Email">
+                                                            </div>
+                                                        </div> -->
+                                                            <!-- <div class="col-12">
+                                                            <div class="form-group">
+                                                                <input class="form-control" name="website" id="website"
+                                                                    type="text" placeholder="Website">
+                                                            </div>
+                                                        </div> -->
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <button type="button" class="button button-contactForm"
+                                                                onclick="submitReview()">Submit
+                                                                Review</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                  <button type="button" class="btn btn-primary">Save changes</button> -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--comment form-->
+
+
                         <script>
-                            function cancelOrder(event){ 
-                                event.preventDefault();
-                                const swalWithBootstrapButtons = Swal.mixin({
-                                customClass: {
-                                    confirmButton: "btn btn-success",
-                                    cancelButton: "btn btn-danger"
-                                },
-                                buttonsStyling: false
-                            });
-                            swalWithBootstrapButtons.fire({
-                                title: "Are you sure you want to cancel the order?",
-                                text: "You won't be able to revert this!",
-                                icon: "warning",
-                                showCancelButton: true,
-                                confirmButtonText: "Yes, cancel order!",
-                                cancelButtonText: "No, don't do it!",
-                                reverseButtons: true
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    swalWithBootstrapButtons.fire({
-                                        title: "Order Cancelled!",
-                                        text: "Thank you for shopping",
-                                        icon: "success"
-                                    });
-                                    setTimeout(() => {
-                                        document.getElementById("cancelorderform").submit();
-                                    }, 3000);
-                                    
-                                } else if (
-                                    /* Read more about handling dismissals below */
-                                    result.dismiss === Swal.DismissReason.cancel
-                                ) {
-                                    swalWithBootstrapButtons.fire({
-                                        title: "No changes were done",
-                                        text: "Order was not cancelled :)",
-                                        icon: "error"
-                                    });
-                                }
-                            });
+
+                            let productid;
+                            function sendProductId(productId) {
+                                productid = productId;
                             }
 
-                            function returnOrder(event){ 
-                                event.preventDefault();
-                                const swalWithBootstrapButtons = Swal.mixin({
-                                customClass: {
-                                    confirmButton: "btn btn-success",
-                                    cancelButton: "btn btn-danger"
-                                },
-                                buttonsStyling: false
-                            });
-                            swalWithBootstrapButtons.fire({
-                                title: "Are you sure you want to return the order?",
-                                text: "You won't be able to revert this!",
-                                icon: "warning",
-                                showCancelButton: true,
-                                confirmButtonText: "Yes, return order!",
-                                cancelButtonText: "No, don't do it!",
-                                reverseButtons: true
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    swalWithBootstrapButtons.fire({
-                                        title: "Our delivery partners will soon contact you!",
-                                        text: "Thank you for shopping",
-                                        icon: "success"
-                                    });
-                                    setTimeout(() => {
-                                        document.getElementById("cancelorderform").submit();
-                                    }, 3000);
-                                    
-                                } else if (
-                                    /* Read more about handling dismissals below */
-                                    result.dismiss === Swal.DismissReason.cancel
-                                ) {
-                                    swalWithBootstrapButtons.fire({
-                                        title: "No changes were done",
-                                        text: "Order was not returned :)",
-                                        icon: "error"
-                                    });
+                            function submitReview() {
+                                console.log("Working")
+                                const comment = document.getElementById('comment').value;
+                                const radioButtons = document.getElementsByName('rate');
+                                let selectedRating = 0;
+                                for (let i = 0; i < radioButtons.length; i++) {
+                                    if (radioButtons[i].checked) {
+                                        selectedRating = radioButtons[i].value;
+                                        break;
+                                    }
                                 }
-                            });
+                                if (comment == "" || selectedRating == 0) {
+                                    alert('Fill')
+                                } else {
+                                    fetch('/submit-review', {
+                                        method: "POST",
+                                        headers: {
+                                            'Content-Type': 'application/json'
+                                        },
+                                        body: JSON.stringify({
+                                            comment: comment,
+                                            rating: selectedRating,
+                                            productId: productid
+                                        })
+                                    }).then(res => {
+                                        if (res.ok) {
+                                            console.log("Success")
+                                            return res.json();
+                                        }
+                                    }).then(data => {
+                                        if (data.message === "Review Added") {
+                                            Swal.fire({
+                                                title: "Sweet!",
+                                                text: "Thank you for your feedback",
+                                                imageUrl: "assets/imgs/tonton-heart-running.gif",
+                                                imageWidth: 300,
+                                                imageHeight: 400,
+                                                imageAlt: "Custom image"
+                                            });
+                                            setTimeout(() => {
+                                                window.location.reload();
+                                            }, 2000);
+                                        }
+                                    })
+                                        .catch(err => {
+                                            console.log(err)
+                                        })
+                                }
+
                             }
-                            
                         </script>
-                    </li>
-                </ul>
-                <hr>
-                <div class="d-flex justify-content-around">
-                    <a href="/account?id=<%=userData._id%>" class="btn btn-warning" data-abc="true"> <i class="fa fa-chevron-left"></i> Back to orders</a>
-                    <%if(orderDetails.orderStatus==='Delivered'){%>
-                        <a href="#" class="btn btn-danger" data-abc="true" style="background-color: brown;" onclick="returnOrder(event)">Return order</a>
-                        <%}else{%>
-                            <%if(orderDetails.orderStatus==='Cancelled'){%>
-                                <h4 style="color: red; margin-top: 18px;">Order Cancelled</h4>
+                        <div class="d-flex justify-content-around">
+                            <a href="/account?id=<%=userData._id%>" class="btn btn-warning" data-abc="true"> <i
+                                    class="fa fa-chevron-left"></i> Back to orders</a>
+                            <%if(orderDetails.orderStatus==='Delivered'){%>
+                                <a href="#" class="btn btn-danger" data-abc="true" style="background-color: brown;"
+                                    onclick="returnOrder(event)">Return
+                                    order</a>
                                 <%}else{%>
-                                    <a href="#" class="btn btn-danger" data-abc="true" style="background-color: red;" onclick="cancelOrder(event)">Cancel order</a>
-                                    <%}%>
-                           
-                            <%}%>
+                                    <%if(orderDetails.orderStatus==='Cancelled'){%>
+                                        <h4 style="color: red; margin-top: 18px;">Order Cancelled</h4>
+                                        <%}else{%>
+                                            <a href="#" class="btn btn-danger" data-abc="true"
+                                                style="background-color: red;" onclick="cancelOrder(event)">Cancel
+                                                order</a>
+                                            <%}%>
+
+                                                <%}%>
+                        </div>
+                    </form>
                 </div>
-                </form>
-            </div>
-        </article>
-    </div>
-    <script src="assets/js/vendor/modernizr-3.6.0.min.js"></script>
-    <script src="assets/js/vendor/jquery-3.6.0.min.js"></script>
-    <script src="assets/js/vendor/jquery-migrate-3.3.0.min.js"></script>
-    <script src="assets/js/vendor/bootstrap.bundle.min.js"></script>
-    <script src="assets/js/plugins/slick.js"></script>
-    <script src="assets/js/plugins/jquery.syotimer.min.js"></script>
-    <script src="assets/js/plugins/wow.js"></script>
-    <script src="assets/js/plugins/jquery-ui.js"></script>
-    <script src="assets/js/plugins/perfect-scrollbar.js"></script>
-    <script src="assets/js/plugins/magnific-popup.js"></script>
-    <script src="assets/js/plugins/select2.min.js"></script>
-    <script src="assets/js/plugins/waypoints.js"></script>
-    <script src="assets/js/plugins/counterup.js"></script>
-    <script src="assets/js/plugins/jquery.countdown.min.js"></script>
-    <script src="assets/js/plugins/images-loaded.js"></script>
-    <script src="assets/js/plugins/isotope.js"></script>
-    <script src="assets/js/plugins/scrollup.js"></script>
-    <script src="assets/js/plugins/jquery.vticker-min.js"></script>
-    <script src="assets/js/plugins/jquery.theia.sticky.js"></script>
-    <script src="assets/js/plugins/jquery.elevatezoom.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
-<script src="assets/js/maind134.js?v=3.4"></script>
-    <script src="assets/js/shopd134.js?v=3.4"></script>
+            </article>
+        </div>
+        <script src="assets/js/vendor/modernizr-3.6.0.min.js"></script>
+        <script src="assets/js/vendor/jquery-3.6.0.min.js"></script>
+        <script src="assets/js/vendor/modernizr-3.6.0.min.js"></script>
+        <script src="assets/js/vendor/jquery-3.6.0.min.js"></script>
+        <script src="assets/js/vendor/jquery-migrate-3.3.0.min.js"></script>
+        <script src="assets/js/vendor/bootstrap.bundle.min.js"></script>
+        <script src="assets/js/plugins/slick.js"></script>
+        <script src="assets/js/plugins/jquery.syotimer.min.js"></script>
+        <script src="assets/js/plugins/wow.js"></script>
+        <script src="assets/js/plugins/jquery-ui.js"></script>
+        <script src="assets/js/plugins/perfect-scrollbar.js"></script>
+        <script src="assets/js/plugins/magnific-popup.js"></script>
+        <script src="assets/js/plugins/select2.min.js"></script>
+        <script src="assets/js/plugins/waypoints.js"></script>
+        <script src="assets/js/plugins/counterup.js"></script>
+        <script src="assets/js/plugins/jquery.countdown.min.js"></script>
+        <script src="assets/js/plugins/images-loaded.js"></script>
+        <script src="assets/js/plugins/isotope.js"></script>
+        <script src="assets/js/plugins/scrollup.js"></script>
+        <script src="assets/js/plugins/jquery.vticker-min.js"></script>
+        <script src="assets/js/plugins/jquery.theia.sticky.js"></script>
+        <script src="assets/js/plugins/jquery.elevatezoom.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+        <script src="assets/js/maind134.js?v=3.4"></script>
+        <script src="assets/js/shopd134.js?v=3.4"></script>
 
 </body>
+
 </html>
