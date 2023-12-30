@@ -329,7 +329,7 @@
                     <div class="col-lg-9">
                         <div class="shop-product-fillter style-2">
                             <div class="totall-product">
-                                <p> We found <strong class="text-brand">688</strong> items for you!</p>
+                                <!-- <p> We found <strong class="text-brand"><%=productData.length%></strong> items for you!</p> -->
                             </div>
                             <div class="sort-by-product-area">
                                 <div class="sort-by-cover mr-10">
@@ -377,7 +377,7 @@
                                     <div class="product-img-action-wrap">
                                         <div class="product-img product-img-zoom">
                                             <div class="product-img-inner">
-                                                <a href="shop-product-right.html">
+                                                <a href="/getdetails?id=<%=productData[i]._id%>">
                                                     <img class="default-img" src="<%=productData[i].image[0]%>" alt="">
                                                     <!-- <img class="hover-img" src="assets/imgs/shop/product-2-2.jpg" alt=""> -->
                                                 </a>
@@ -395,12 +395,24 @@
                                     </div>
                                     <div class="product-content-wrap">
                                         <div class="product-category">
-                                            <a href="shop-grid-right.html"><%=productData[i].categoryid.categoryName%></a>
+                                            <%=productData[i].categoryid.categoryName%>
                                         </div>
-                                        <h2><a href="shop-product-right.html"><%=productData[i].productName%></a></h2>
+                                        <h2><a href="/getdetails?id=<%=productData[i]._id%>"><%=productData[i].productName%></a></h2>
+
+                                        <% 
+                                            const productDiscount = productData[i].discountPercentage;
+                                            const categoryDiscount = productData[i].categoryid.discountPercentage
+                                            const flatDiscount = productData[i].categoryid.flatOfferAmount
+                                            const offerInCategory = categoryDiscount>0? categoryDiscount : flatDiscount
+                                            const displayDiscount = productDiscount > 0 ? productDiscount : offerInCategory;
+                                        %>
+
                                         <div class="product-price">
                                             <span><%=productData[i].salePrice%> </span>
-                                            <span class="old-price"><%=productData[i].regularPrice%></span>
+                                            
+                                            <%if(displayDiscount!==0&&productData[i].salePrice!==productData[i].regularPrice){%>
+                                                <span class="old-price">₹<%=productData[i].regularPrice%></span>
+                                                <%}%>
                                         </div>
                                         <p class="mt-15"><%=productData[i].description.length > 100 ? 
                                             productData[i].description.slice(0, 100) + '...' : 
@@ -423,11 +435,20 @@
                         <div class="pagination-area mt-15 mb-sm-5 mb-lg-0">
                             <nav aria-label="Page navigation example">
                                 <ul class="pagination justify-content-start">
-                                    <li class="page-item active"><a class="page-link" href="#">01</a></li>
-                                    <li class="page-item"><a class="page-link" href="#">02</a></li>
-                                    <li class="page-item"><a class="page-link" href="#">03</a></li>
-                                    <li class="page-item"><a class="page-link dot" href="#">...</a></li>
-                                    <li class="page-item"><a class="page-link" href="#">16</a></li>
+                                    
+                                    <%for(i=1;i<=totalPages;i++){%>
+                                        <%if(filter==''){%>
+                                            <li class="page-item active"><a class="page-link" href="/view-all-products?page=<%=i%>"><%=i%></a></li>
+                                            <%}else if(filter=='avgRating'){%>
+                                            <li class="page-item active"><a class="page-link" href="/view-all-products?sort=avgRating&page=<%=i%>"><%=i%></a></li>
+                                            <%}else if(filter=='lowtohigh'){%>
+                                                <li class="page-item active"><a class="page-link" href="/view-all-products?sort=lowtohigh&page=<%=i%>"><%=i%></a></li>
+                                                <%}else if(filter=='hightolow'){%>
+                                                    <li class="page-item active"><a class="page-link" href="/view-all-products?sort=hightolow&page=<%=i%>"><%=i%></a></li>
+                                                    <%}%>
+                                        <%}%>
+                                    
+                                    
                                     <li class="page-item"><a class="page-link" href="#"><i class="fi-rs-angle-double-small-right"></i></a></li>
                                 </ul>
                             </nav>
@@ -437,17 +458,15 @@
                         <div class="widget-category mb-30">
                             <h5 class="section-title style-1 mb-30 wow fadeIn animated">Category</h5>
                             <ul class="categories">
-                                <li><a href="shop-grid-right.html">Shoes & Bags</a></li>
-                                <li><a href="shop-grid-right.html">Blouses & Shirts</a></li>
-                                <li><a href="shop-grid-right.html">Dresses</a></li>
-                                <li><a href="shop-grid-right.html">Swimwear</a></li>
-                                <li><a href="shop-grid-right.html">Beauty</a></li>
-                                <li><a href="shop-grid-right.html">Jewelry & Watch</a></li>
-                                <li><a href="shop-grid-right.html">Accessories</a></li>
+                                <%for(i=0;i<categoryData.length;i++){%>
+                                    <li><a href="shop-grid-right.html"><%=categoryData[i].categoryName%></a></li>
+                                    <%}%>
+                                
+                            
                             </ul>
                         </div>
                         <!-- Fillter By Price -->
-                        <div class="sidebar-widget price_range range mb-30">
+                        <!-- <div class="sidebar-widget price_range range mb-30">
                             <div class="widget-header position-relative mb-20 pb-10">
                                 <h5 class="widget-title mb-10">Fill by price</h5>
                                 <div class="bt-1 border-color-1"></div>
@@ -489,9 +508,9 @@
                                 </div>
                             </div>
                             <a href="shop-grid-right.html" class="btn btn-sm btn-default"><i class="fi-rs-filter mr-5"></i> Fillter</a>
-                        </div>
+                        </div> -->
                         <!-- Product sidebar Widget -->
-                        <div class="sidebar-widget product-sidebar  mb-30 p-30 bg-grey border-radius-10">
+                        <!-- <div class="sidebar-widget product-sidebar  mb-30 p-30 bg-grey border-radius-10">
                             <div class="widget-header position-relative mb-20 pb-10">
                                 <h5 class="widget-title mb-10">New products</h5>
                                 <div class="bt-1 border-color-1"></div>
@@ -532,7 +551,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
                         <div class="banner-img wow fadeIn mb-45 animated d-lg-block d-none">
                             <img src="assets/imgs/banner/banner-11.jpg" alt="">
                             <div class="banner-text">

@@ -1,0 +1,29 @@
+.rate {
+    /* float: left; */
+    display: block;
+    margin: auto;
+    height: 46px;
+    /* padding: 0px 50px; */
+    width: 100px;
+    /* padding-right: 1100px; */
+    
+}
+.rate:not(:checked) > input {
+    position:absolute;
+    top:-9999px;
+}
+.rate:not(:checked) > label {
+    float:right;
+    width:1em;
+    overflow:hidden;
+    white-space:nowrap;
+    cursor:pointer;
+    font-size:20px;
+    color:#ccc;
+}
+.rate:not(:checked) > label:before {
+    content: '★ ';
+}
+.rate > input:checked ~ label {
+    color: #ffc700;    
+}

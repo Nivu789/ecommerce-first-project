@@ -74,6 +74,21 @@ const userSchema = mongoose.Schema({
         type:Number,
         default:0
     },
+    walletTransaction:[
+        {
+            Amount:{
+                type:Number,
+                default:0
+            },
+            transactionType:{
+                type:String
+            },
+            time:{
+                type:Date
+            }
+        }
+
+    ],
     ref_code:{
         type:String
     },

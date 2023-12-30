@@ -17,6 +17,7 @@
     <link rel="shortcut icon" type="image/x-icon" href="assets/imgs/theme/favicon.svg">
     <!-- Template CSS -->
     <link rel="stylesheet" href="assets/css/maind134.css?v=3.4">
+    <link rel="stylesheet" href="/assets/css/star-home.css">
 </head>
 
 <body>
@@ -1049,6 +1050,28 @@
                                         <div class="product-badges product-badges-position product-badges-mrg">
                                             <span class="hot">Hot</span>
                                         </div>
+                                        <div class="rate">
+                                            <input type="radio"
+                                                <%=product[i].avgRating===5
+                                                ? 'checked' : '' %> disabled/>
+                                            <label for="star5" title="text">5 stars</label>
+                                            <input type="radio"
+                                                <%=product[i].avgRating===4
+                                                ? 'checked' : '' %> disabled/>
+                                            <label for="star4" title="text">4 stars</label>
+                                            <input type="radio"
+                                                <%=product[i].avgRating===3
+                                                ? 'checked' : '' %> disabled/>
+                                            <label for="star3" title="text">3 stars</label>
+                                            <input type="radio"
+                                                <%=product[i].avgRating===2
+                                                ? 'checked' : '' %> disabled/>
+                                            <label for="star2" title="text">2 stars</label>
+                                            <input type="radio"
+                                                <%=product[i].avgRating===1
+                                                ? 'checked' : '' %> disabled/>
+                                            <label for="star1" title="text">1 star</label>
+                                        </div>
                                     </div>
                                     <script>
                                         function addToWishlist(productId,userId,event){
@@ -1120,17 +1143,14 @@
                                     </script>
                                     
                                     <div class="product-content-wrap">
+                                        
                                         <!-- <div class="product-category">
                                             <a href="shop-grid-right.html">Clothing</a>
                                         </div> -->
-                                        <h2><a href="shop-product-right.html"><%=product[i].productName%></a></h2>
-                                        <div class="rating-result" title="90%">
-                                            <span>
-                                                <span>90%</span>
-                                            </span>
-                                        </div>
+                                        <h2 class="text-center"><a href="shop-product-right.html"><%=product[i].productName%></a></h2>
+                                        
                                         <% 
-                                            // Assuming product[i].categoryid is the category associated with the product
+                                            
                                             const productDiscount = product[i].discountPercentage;
                                             const categoryDiscount = product[i].categoryid.discountPercentage
                                             const flatDiscount = product[i].categoryid.flatOfferAmount
@@ -1166,6 +1186,7 @@
                                             
                                             
                                         </div>
+                                    
                                         <div class="product-action-1 show">
                                             <a aria-label="Add To Cart" class="action-btn hover-up" href="shop-cart.html"><i class="fi-rs-shopping-bag-add"></i></a>
                                         </div>

@@ -872,7 +872,6 @@ const deleteCategory = async (req, res) => {
                     minPurchase: minimumAmount,
                     expiryDate: date,
                     limit: 1,
-                    redeemedUsers: null,
                     description: description
                 })
                 await couponData.save();
@@ -884,7 +883,6 @@ const deleteCategory = async (req, res) => {
                     minPurchase: minimumAmount,
                     expiryDate: date,
                     limit: 1,
-                    redeemedUsers: null,
                     description: description
                 })
                 await couponData.save();

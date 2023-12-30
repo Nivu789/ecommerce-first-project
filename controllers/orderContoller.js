@@ -114,7 +114,19 @@ const cancelOrder = async(req,res) =>{
         }
         
         if(orderData.paymentStatus==="Success"){
-            await User.findOneAndUpdate({email:email},{$inc:{wallet:+totalAmount}})
+            await User.findOneAndUpdate(
+                { email: email },
+                {
+                    $inc: { wallet: +totalAmount },
+                    $push: {
+                        walletTransaction: {
+                            transactionType: "Credit",
+                            Amount: totalAmount,
+                            time: Date.now()
+                        }
+                    }
+                }
+            );
         }
         
         res.redirect(`/account?id=${userData._id}`)

@@ -452,7 +452,7 @@
                                                         <% totalPrice +=itemTotal %>
                                                             <%}%>
 
-
+                                                        <%console.log("Total price is",totalPrice)%>
                                                                 <tr>
                                                                     <th>SubTotal</th>
                                                                     <td class="product-subtotal" colspan="2">₹
@@ -474,14 +474,14 @@
                                                                     <td colspan="2" class="product-subtotal"><span
                                                                             id="totalPriceElement"
                                                                             class="font-xl text-brand fw-900">₹
-                                                                            <%=totalPrice%>
+                                                                            <%= totalPrice %>
                                                                         </span></td>
                                                                 </tr>
                                                                 <input type="hidden" name="totalAmount" id="totalAmount"
                                                                     value="<%=totalPrice%>">
                                                                 <script>
                                                                     // Assuming totalPrice is a numeric value
-                                                                    var totalPriceInJavaScript = '<%= totalPrice %>';
+                                                                    var totalPriceInJavaScript = '<%=totalPrice%>';
 
                                                                     // Now you can use totalPriceInJavaScript in your JavaScript code
                                                                     console.log("Total Price in JavaScript:", totalPriceInJavaScript);

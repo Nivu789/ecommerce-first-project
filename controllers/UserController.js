@@ -759,10 +759,15 @@ const applyCoupon = async(req,res) =>{
         if(userPresent){
             res.json({status:"failed"})
         }else{
-            
+            let newAmount;
             if(couponData){
                 if(couponData.discount>0){
-                    const newAmount = totalPrice-couponData.discount
+                    newAmount = totalPrice-couponData.discount
+                    if(newAmount<0){
+                        newAmount = 1
+                    }else{
+                        newAmount = totalPrice-couponData.discount
+                    }
                     console.log(newAmount)
                     // await Coupon.findOneAndUpdate({couponcode:couponCode},{$push:{redeemedUsers:userId}})
                     res.json({newAmount:newAmount,couponcode:couponCode,discount:couponData.discount}) 
@@ -1204,6 +1209,7 @@ const payByWallet = async(req,res) =>{
     try {
         console.log("Paybywallet working")
         const totalAmount = parseFloat(req.body.totalPrice)
+        console.log("TOTAL AMOUNT IS",totalAmount)
         const email = req.session.email
         // const addressIndex = req.body.flexRadioDefault
         const userData = await User.findOne({email:email}).populate('cart.productId')
@@ -1211,7 +1217,19 @@ const payByWallet = async(req,res) =>{
             console.log("inside if")
             res.json({Status:'failed'})
         }else{
-            await User.findOneAndUpdate({email:email},{$inc:{wallet:-totalAmount}})
+            await User.findOneAndUpdate(
+                { email: email },
+                {
+                    $inc: { wallet: -totalAmount },
+                    $push: {
+                        walletTransaction: {
+                            transactionType: "Debit",
+                            Amount: totalAmount,
+                            time: Date.now()
+                        }
+                    }
+                }
+            );
             res.json({Status:'success'})
         }
     } catch (error) {
@@ -1314,18 +1332,32 @@ const postReviewReply = async(req,res) =>{
 
 const getAllProducts = async(req,res) =>{
     try {
+        let page = req.query.page||1;
+        let limit = 5;
+        let count = 0;
         let productData;
+        let filter = '';
         if(req.query.sort=='avgRating'){
-            productData = await Product.find({}).sort({avgRating:-1}).populate('categoryid')
+            productData = await Product.find({}).sort({avgRating:-1}).limit(limit).skip((page-1)*limit).populate('categoryid')
+            filter = 'avgRating'
             
         }else if(req.query.sort=="lowtohigh"){
-            productData = await Product.find({}).sort({salePrice:1}).populate('categoryid');
+            productData = await Product.find({}).sort({salePrice:1}).limit(limit).skip((page-1)*limit).populate('categoryid');
+            filter = 'lowtohigh'
         }else if(req.query.sort=="hightolow"){
-            productData = await Product.find({}).sort({salePrice:-1}).populate('categoryid');
+            productData = await Product.find({}).sort({salePrice:-1}).limit(limit).skip((page-1)*limit).populate('categoryid');
+            filter = 'hightolow'
+        }else{
+            productData = await Product.find({}).limit(limit).skip((page-1)*limit);
         }
         
+        // count = productData.length;
+        const categoryData = await Category.find({})
+        count = await await Product.find({}).countDocuments();
+        const totalPages = Math.ceil(count/limit);
+        console.log(totalPages)
         if(productData){
-            res.render('all-product',{productData})
+            res.render('all-product',{productData,totalPages,filter,categoryData})
         }
     } catch (error) {
         console.log(error)
