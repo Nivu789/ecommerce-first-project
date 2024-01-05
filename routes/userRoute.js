@@ -16,8 +16,8 @@ userRoute.use(session({
 const Razorpay = require('razorpay')
 
 var instance = new Razorpay({
-    key_id: 'rzp_test_kSIyK5TZxxovTs',
-    key_secret: 'kAPTYiz3PlQiCPkwBxTgvg32',
+    key_id: process.env.RAZORPAY_ID,
+    key_secret: process.env.RAZORPAY_SECRET,
   })
 console.log("Secret key is "+secret)
 userRoute.set('views','./views/user');
@@ -120,6 +120,8 @@ userRoute.get('/filterbyasc',userFunctions.filterByAscending)
 
 userRoute.get('/filterbydsc',userFunctions.filterByDescending)
 
+userRoute.get('/filterByAvgRating',userFunctions.filterByAvgRating)
+
 userRoute.post('/applycoupon',userFunctions.applyCoupon)
 
 userRoute.post('/paybywallet',userFunctions.payByWallet)
@@ -140,6 +142,11 @@ userRoute.post('/reply-to-review',userAuth.isLogin,userFunctions.postReviewReply
 
 userRoute.get('/view-all-products',userFunctions.getAllProducts)
 
+userRoute.get('/get-data-by-category',userFunctions.getDataByCategory)
+
+userRoute.get('/check-stock-checkout',userFunctions.checkStockAtCheckout)
+
+userRoute.post('/check-stock-cart',userFunctions.checkStockAtCart)
 
 
 module.exports = userRoute;

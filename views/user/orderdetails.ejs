@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="/assets/css/orderdetails.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css">
-    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="description" content="">
     <meta property="og:title" content="">
@@ -20,42 +20,128 @@
     <!-- Template CSS -->
     <link rel="stylesheet" href="assets/css/maind134.css?v=3.4">
     <link rel="stylesheet" href="/assets/css/stars.css">
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 </head>
 
 <body>
+   
+
     <%-include('navbar.ejs')%>
         <div class="container" style="margin-bottom: 200px;">
             <article class="card">
-                <header class="card-header"> My Orders / Tracking </header>
+                <div class="hidden-on-print">
+                    <header class="card-header hidden-on-print d-flex justify-content-between"> <div>My Orders / Tracking </div> <button class="btn" onclick="printInvoice()">Print Invoice</button></header>
+                </div>
+                
                 <div class="card-body">
                     <h6>
                         <%=orderDetails.orderId%>
                     </h6>
+                    <script>
+                        function printInvoice(){
+                            window.print()
+                        }
+                    </script>
                     <article class="card">
-                        <div class="card-body row">
+                        <div class="card-body row d-flex">
                             <div class="col"> <strong>Estimated Delivery time:</strong> <br>
-                                <%=orderDetails.orderDate%>
+                                <p id="orderDate"></p>
                             </div>
-                            <div class="col"> <strong>Shipping BY:</strong> <br> BLUEDART, | <i class="fa fa-phone"></i>
-                                +1598675986 </div>
+                            <script>
+                                const formattedOrderDate = moment(`<%=orderDetails.orderDate%>`).format('MMMM Do YYYY, h:mm:ss a')
+                                document.getElementById('orderDate').textContent = formattedOrderDate
+                            </script>
                             <div class="col"> <strong>Status:</strong> <br>
                                 <%=orderDetails.orderStatus%>
                             </div>
-                            <div class="col"> <strong>Tracking #:</strong> <br> BD045903594059 </div>
+                            <div class="col"> <strong>Coupon Used:</strong> <br>
+                                <%if(orderDetails.couponId){%>
+                                    <%=orderDetails.couponId.couponcode%>
+                                        <p class="text-success">(-₹<%=orderDetails.couponId.discount%>)</p>
+                                        <%}else{%>
+                                            <p>No Coupon were used for this purchase</p>
+                                            <%}%>
+
+                            </div>
+                            <div class="col"> <strong>Order Id:</strong> <br>
+                                <div>
+                                    <%=orderDetails.orderId%>
+                                </div>
+                            </div>
+
+                            <div class="col">
+                                
+                                    <div class="">
+                                        <h6 class="mb-1">Deliver to</h6>
+                                        <p class="mb-1">
+                                            City: <%=userData.address[orderDetails.addressIndex].city%> <br><%=userData.address[orderDetails.addressIndex].a1%> <br> <%=userData.address[orderDetails.addressIndex].a2%>
+                                        </p>
+                                        
+                                    </div>
+                                
+                            </div> <!-- col// -->
+                            <div class="col"> <strong>User Details:</strong> <br>
+                                <div>
+                                    <span>Name:</span><%=userData.name%>
+                                    <span>Phone:</span><%=userData.phone%>
+                                    <span>Email:</span><%=userData.email%>
+                                </div>
+                            </div>
                         </div>
                     </article>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            const orderStatus = document.getElementById('orderStatus').value;
+                            const steps = document.querySelectorAll('.step');
+                            console.log(steps)
+                            if (orderStatus == "Shipped") {
+                                let i = 0;
+                                const intervalId = setInterval(() => {
+                                    if (i < 2) {
+                                        steps[i].classList.add("active");
+                                        i++;
+                                    } else {
+                                        clearInterval(intervalId); // Stop the interval when the loop is done
+                                    }
+                                }, 500);
+                            } else if (orderStatus == "Delivered") {
+                                let i = 0;
+                                const intervalId = setInterval(() => {
+                                    if (i < 3) {
+                                        steps[i].classList.add("active");
+                                        i++;
+                                    } else {
+                                        clearInterval(intervalId); // Stop the interval when the loop is done
+                                    }
+                                }, 500);
+                            } else if (orderStatus == "Cancelled") {
+                                document.querySelector('.track').style.display = 'none'
+                            } else if (orderStatus == "Order Placed") {
+                                let i = 0;
+                                const intervalId = setInterval(() => {
+                                    if (i < 1) {
+                                        steps[i].classList.add("active");
+                                        i++;
+                                    } else {
+                                        clearInterval(intervalId); // Stop the interval when the loop is done
+                                    }
+                                }, 500);
+                            }
 
-                    <div class="track">
-                        <div class="step active"> <span class="icon"> <i class="fa fa-check"></i> </span> <span
-                                class="text">Order confirmed</span> </div>
-                        <div class="step active"> <span class="icon"> <i class="fa fa-user"></i> </span> <span
-                                class="text"> Picked by courier</span> </div>
-                        <div class="step "> <span class="icon"> <i class="fa fa-truck"></i> </span> <span class="text">
-                                On the way </span> </div>
-                        <div class="step"> <span class="icon"> <i class="fa fa-box"></i> </span> <span
-                                class="text">Ready for pickup</span> </div>
+                        });
+                    </script>
+                    <input type="hidden" id="orderStatus" value="<%=orderDetails.orderStatus%>">
+                    <div class="hidden-on-print">
+                        <div class="track">
+                            <div class="step"> <span class="icon"> <i class="fa-solid fa-cart-plus"></i> </span> <span
+                                    class="text">Order Placed</span> </div>
+                            <div class="step"> <span class="icon"> <i class="fa fa-truck"></i> </span> <span class="text">
+                                    Shipped</span> </div>
+                            <div class="step"> <span class="icon"> <i class="fa fa-check"></i> </span> <span class="text">
+                                    Delivered </span> </div>
+                        </div>
                     </div>
+                    
                     <form method="post" action="/cancelorder?id=<%=orderDetails._id%>" id="cancelorderform">
                         <hr>
                         <ul class="row">
@@ -72,14 +158,15 @@
                                                     <%= product.productId.brand %><br>
                                                         <%= product.productId.productName %><span> (<%= product.quantity
                                                                     %>)</span>
+                                                    <%if(orderDetails.orderStatus==='Delivered'){%>
+                                                    <button class="btn hidden-on-print" type="button" data-bs-toggle="modal"
+                                                    data-bs-target="#reviewModal"
+                                                    onclick="sendProductId('<%=product.productId._id%>')">write a
+                                                    review</button>
+                                                    <%}%>
                                                 </p>
                                             </figcaption>
-                                            <%if(orderDetails.orderStatus==='Delivered'){%>
-                                                <button class="btn" type="button" data-bs-toggle="modal"
-                                                data-bs-target="#reviewModal"
-                                                onclick="sendProductId('<%=product.productId._id%>')">write a
-                                                review</button>
-                                                <%}%>
+                                            
                                         </figure>
                                     </li>
                                     <%}%>
@@ -246,11 +333,14 @@
                                                             </div>
                                                         </div> -->
                                                         </div>
-                                                        <div class="form-group">
-                                                            <button type="button" class="button button-contactForm"
-                                                                onclick="submitReview()">Submit
-                                                                Review</button>
-                                                        </div>
+                                                            <div>
+                                                                <div class="form-group"> 
+                                                                    <button type="button" class="button button-contactForm"
+                                                                    onclick="submitReview()">Submit
+                                                                    Review</button>
+                                                                </div>
+                                                            </div>
+                                                           
                                                     </form>
                                                 </div>
                                             </div>
@@ -325,8 +415,9 @@
 
                             }
                         </script>
-                        <div class="d-flex justify-content-around">
-                            <a href="/account?id=<%=userData._id%>" class="btn btn-warning" data-abc="true"> <i
+                        <div class="hidden-on-print">
+                            <div class="d-flex justify-content-around">
+                                <a href="/account?id=<%=userData._id%>" class="btn btn-warning" data-abc="true"> <i
                                     class="fa fa-chevron-left"></i> Back to orders</a>
                             <%if(orderDetails.orderStatus==='Delivered'){%>
                                 <a href="#" class="btn btn-danger" data-abc="true" style="background-color: brown;"
@@ -342,6 +433,8 @@
                                             <%}%>
 
                                                 <%}%>
+                            </div>
+                            
                         </div>
                     </form>
                 </div>
@@ -373,6 +466,7 @@
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
         <script src="assets/js/maind134.js?v=3.4"></script>
         <script src="assets/js/shopd134.js?v=3.4"></script>
+        
 
 </body>
 

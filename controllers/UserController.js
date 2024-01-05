@@ -16,7 +16,9 @@ const Wishlist = require('../models/wishlistModel');
 const offerExpiry = require('../functions/offerExpiry')
 const Banner = require('../models/bannerModel')
 const Brand = require('../models/brandModel')
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcrypt');
+const DealOfDay = require('../models/dealOfDay');
+const mongoose = require('mongoose')
 
 var instance = new Razorpay({
     key_id: process.env.RAZORPAY_ID,
@@ -51,16 +53,17 @@ const getHome = async(req,res) =>{
         const userData = await User.findOne({email:req.session.email}).populate('cart.productId')
         const bannerData = await Banner.find({})
         const brandData = await Brand.find({})
+        const dealOfDayData = await DealOfDay.find({active:true})
         console.log(req.session.email);
         if(userData){
             console.log(userData);
             const userId = userData._id
             const wishListData = await Wishlist.findOne({userId:userId}).populate('products.productId')
             console.log(wishListData)
-            res.render('home',{product,category,userData,wishListData,bannerData,brandData})
+            res.render('home',{product,category,userData,wishListData,bannerData,brandData,dealOfDayData})
         }else{
             console.log('fas');
-            res.render('home',{product,category,userData,bannerData,brandData})
+            res.render('home',{product,category,userData,bannerData,brandData,dealOfDayData})
         }
         
         
@@ -362,7 +365,7 @@ const getProductDetails = async(req,res) =>{
         const productData = await Product.findOne({_id:id}).populate('brand').populate('productReview.userId').populate({
             path: 'productReview.replies.userId',
             model: 'customer' 
-        });
+        }).populate('categoryid');
         const userData = await User.findOne({email:email})
         const fullProductData = await Product.find({})
         if(userData){
@@ -498,7 +501,7 @@ const getOrderDetails = async(req,res) =>{
         const userData = await User.findOne({email:req.session.email})
         const userId = userData._id
         const wishListData = await Wishlist.findOne({userId:userId})
-        const orderDetails = await Order.findOne({_id:orderId}).populate('products.productId');
+        const orderDetails = await Order.findOne({_id:orderId}).populate('products.productId').populate('couponId');
         const category = await Category.find({is_active:true})
             res.render('orderdetails',{orderDetails,userData,category,wishListData})
         
@@ -512,15 +515,21 @@ const getCart = async(req,res) =>{
     try {
 
         // const id = req.session.userId;
+        let status;
+        status = req.query.status||null
+        console.log(status)
         const email = req.session.email;
         const userData = await User.findOne({email:email});
         const userId = userData._id
         const wishListData = await Wishlist.findOne({userId:userId})
         if(userData){
             const fullUserData = await User.findOne({email:email}).populate('cart.productId')
-            
+            if(status=="failed"){
+                res.render('cart',{userData,fullUserData,wishListData,message:'0'})
+            }else if(status==null){
+                res.render('cart',{userData,fullUserData,wishListData,message:''})
+            }
             // console.log(fullUserData)
-            res.render('cart',{userData,fullUserData,wishListData})
         }else{
             res.redirect('/');
         }
@@ -640,6 +649,7 @@ const addToWishlist = async(req,res) =>{
 
 const addToCartFromWishlist = async(req,res) =>{
     try {
+        console.log("WORKING")
         const email = req.session.email
         const productId = req.query.id;
         const userData = await User.findOne({email:email});
@@ -656,7 +666,7 @@ const addToCartFromWishlist = async(req,res) =>{
         const productExist = userData.cart.findIndex(item=>item.productId == productId)
             if(productExist!==-1){
                 console.log("Exist")
-                res.render('wishlist',{wishListData,message:'1'})
+                res.render('wishlist',{wishListData,message:'1',userData})
             }else{
                 // const productData = await Product.findOne({_id:productId})
         const existingCartItemIndex = userData.cart.findIndex(item => item.productId == productId);
@@ -705,15 +715,16 @@ const getCheckoutProducts = async(req,res) =>{
         const wishListData = await Wishlist.findOne({userId:userId})
         console.log(totalAmount)
         const currentDate = Date.now();
+        
         if(userData){
             const fullUserData = await User.findOne({email:email}).populate('cart.productId')
-            // const couponData = await Coupon.find({
-            //     redeemedUsers: {
-            //       $not: {
-            //         $elemMatch: { $eq: userData._id }
-            //       }
-            //     }
-            //   });
+            for(items of fullUserData.cart){
+                console.log("ITEMS",items)
+                if(items.productId.quantity<=0){
+                    res.redirect(`/cart?status=failed`)
+                    return
+                }
+            }
             let totalAmount = 0;
             for (const cartItem of fullUserData.cart) {
                 const productPrice = cartItem.productId.salePrice; // Assuming price is a property of the product model
@@ -724,16 +735,51 @@ const getCheckoutProducts = async(req,res) =>{
 
             const couponData = await Coupon.find({
                 $and:[
-                    {redeemedUsers: { $nin: [userData._id] }},
+                    {redeemedUsers: { $nin: [userId] }},
                     {expiryDate: { $gte: currentDate }},
                     {minPurchase:{$lte:totalAmount}}
                 ]   
               });
-              console.log(couponData)
+            const key = process.env.RAZORPAY_ID
+              console.log("COUPONDATA",couponData)
             console.log(fullUserData)
-            res.render('shop-checkout',{userData,fullUserData,couponData,wishListData})
+            res.render('shop-checkout',{userData,fullUserData,couponData,wishListData,key})
         }else{
             res.redirect('/');
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+const checkStockAtCart = async(req,res) =>{
+    try {
+        const email = req.session.email;
+        const fullUserData = await User.findOne({email:email}).populate('cart.productId')
+        for(items of fullUserData.cart){
+            if(items.productId.quantity<items.quantity){
+                res.json({message:"Failed"})
+            }else{
+                res.json({message:"Success"})
+            }
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+const checkStockAtCheckout = async(req,res) =>{
+    try {
+        const email = req.session.email;
+        const fullUserData = await User.findOne({email:email}).populate('cart.productId')
+        for(items of fullUserData.cart){
+            console.log("ITEMS",items)
+            if(items.productId.quantity<=0){
+                res.json({message:"Failed"})
+                return
+            }else{
+                res.json({message:"Continue"})
+            }
         }
     } catch (error) {
         console.log(error)
@@ -805,7 +851,17 @@ const applyCoupon = async(req,res) =>{
 
 const addAddress = async(req,res) =>{
     try {
-        res.render('addaddress')
+        const email = req.session.email;
+        const userData = await User.findOne({email:email});
+        let wishListData;
+        let userId;
+        if(userData){
+            userId = userData._id;
+            wishListData = await Wishlist.findOne({userId:userId})
+        }else{
+            wishListData = null;
+        }
+        res.render('addaddress',{userData,wishListData})
     } catch (error) {
         console.log(error)
     }
@@ -842,10 +898,18 @@ const editAddress = async(req,res) =>{
         const email = req.session.email;
         const userData = await User.findOne({email:email});
         const addressId = req.query.id;
+        let wishListData;
+        let userId;
+        if(userData){
+            userId = userData._id;
+            wishListData = await Wishlist.findOne({userId:userId})
+        }else{
+            wishListData = null;
+        }
         console.log(addressId)
         const selectedAddress = userData.address.find(address => address._id == addressId);
         if(userData){
-              res.render('editaddress',{userData,selectedAddress})
+              res.render('editaddress',{userData,selectedAddress,wishListData})
         }else{
             res.redirect('/account')
         }
@@ -1112,10 +1176,19 @@ const getProductResults = async(req,res) =>{
                     { categoryid: { $in: await getCategoryIdsByCategoryName(search) } }
                 ]
             }).countDocuments();
-
+            const email = req.session.email;
+            const userData = await User.findOne({email:email});
+            let wishListData;
+            let userId;
+            if(userData){
+                userId = userData._id;
+                wishListData = await Wishlist.findOne({userId:userId})
+            }else{
+                wishListData = null;
+            }
             const totalPages = Math.ceil(count/limit);
             // console.log(productData)
-            res.render('product-results',{productData,totalPages,search,page,filter:'',categoryData})
+            res.render('product-results',{productData,totalPages,search,page,filter:'',categoryData,userData,wishListData})
         }
 
     } catch (error) {
@@ -1148,7 +1221,7 @@ const filterByAscending = async(req,res) =>{
                 console.log("Category is",category)
                 return category ? [category._id] : [];
             }
-
+            
             const count = await Product.find({
                 $or: [
                     { productName: { $regex: new RegExp('.*' + search + '.*', 'i') } },
@@ -1160,7 +1233,17 @@ const filterByAscending = async(req,res) =>{
 
             const totalPages = Math.ceil(count/limit);
             console.log(productData)
-            res.render('product-results',{productData,totalPages,search,page,filter:'lth',categoryData})
+            const email = req.session.email;
+            const userData = await User.findOne({email:email});
+            let wishListData;
+            let userId;
+            if(userData){
+                userId = userData._id;
+                wishListData = await Wishlist.findOne({userId:userId})
+            }else{
+                wishListData = null;
+            }
+            res.render('product-results',{productData,totalPages,search,page,filter:'lth',categoryData,userData,wishListData})
         }
     } catch (error) {
         console.log(error)
@@ -1199,7 +1282,65 @@ const filterByDescending = async(req,res) =>{
         console.log(count)
 
         const totalPages = Math.ceil(count/limit);
-        res.render('product-results',{productData,totalPages,search,page,filter:'htl',categoryData})
+        const email = req.session.email;
+        const userData = await User.findOne({email:email});
+        let wishListData;
+        let userId;
+        if(userData){
+            userId = userData._id;
+            wishListData = await Wishlist.findOne({userId:userId})
+        }else{
+            wishListData = null;
+        }
+        res.render('product-results',{productData,totalPages,search,page,filter:'htl',categoryData,userData,wishListData})
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+const filterByAvgRating = async(req,res) =>{
+    try {
+        var search = req.query.search;
+        var limit = 5;
+        var page = req.query.page || 1;
+        console.log("Page is",page)
+        const categoryData = await Category.find({})
+        const productData = await Product.find({
+            $or:[
+                {productName:{$regex:new RegExp('.*'+search+'.*')}},
+                {categoryid:{$in: await getCategoryIdsByCategoryName(search)}}
+            ]
+        }).sort({avgRating:-1}).limit(limit).skip((page-1)*limit)
+
+        console.log("Product Data is",productData)
+        async function getCategoryIdsByCategoryName(categoryName){
+            const regexPattern = new RegExp('.*' + categoryName.replace(/ /g, '.*') + '.*', 'i');
+            // console.log('Regex Pattern:', regexPattern);
+            const category = await Category.findOne({ categoryName: { $regex: regexPattern } });
+            return category?[category._id]:[]
+        }
+
+        const count = await Product.find({
+            $or: [
+                { productName: { $regex: new RegExp('.*' + search + '.*', 'i') } },
+                { categoryid: { $in: await getCategoryIdsByCategoryName(search) } }
+            ]
+        }).countDocuments();
+
+        console.log(count)
+
+        const totalPages = Math.ceil(count/limit);
+        const email = req.session.email;
+        const userData = await User.findOne({email:email});
+        let wishListData;
+        let userId;
+        if(userData){
+            userId = userData._id;
+            wishListData = await Wishlist.findOne({userId:userId})
+        }else{
+            wishListData = null;
+        }
+        res.render('product-results',{productData,totalPages,search,page,filter:'avg',categoryData,userData,wishListData})
     } catch (error) {
         console.log(error)
     }
@@ -1269,6 +1410,9 @@ const submitProductReview = async(req,res) =>{
                 totalRating+=review.rating
                 reviewCount+=1;
             })
+        }else{
+            totalRating += rating;
+            reviewCount+=1
         }
 
         console.log("TOTAL RATING",totalRating);
@@ -1353,12 +1497,63 @@ const getAllProducts = async(req,res) =>{
         
         // count = productData.length;
         const categoryData = await Category.find({})
-        count = await await Product.find({}).countDocuments();
+        count = await Product.find({}).countDocuments();
         const totalPages = Math.ceil(count/limit);
         console.log(totalPages)
-        if(productData){
-            res.render('all-product',{productData,totalPages,filter,categoryData})
+        const email = req.session.email;
+        const userData = await User.findOne({email:email});
+        let wishListData;
+        let userId;
+        if(userData){
+            userId = userData._id;
+            wishListData = await Wishlist.findOne({userId:userId})
+        }else{
+            wishListData = null;
         }
+        if(productData){
+            res.render('all-product',{productData,totalPages,filter,categoryData,userData,wishListData})
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+const getDataByCategory = async(req,res) =>{
+    try {
+        let page = req.query.page||1;
+        let limit = 5;
+        let count = 0;
+        let productData;
+        let filter = '';
+        const categoryId = req.query.id;
+        console.log("CATEGORY ID",categoryId)
+        const categoryData = await Category.find({})
+        if(req.query.sort=='avgRating'){
+            productData = await Product.find({categoryid:categoryId}).sort({avgRating:-1}).limit(limit).skip((page-1)*limit).populate('categoryid')
+            filter = 'avgRating'
+            
+        }else if(req.query.sort=="lowtohigh"){
+            productData = await Product.find({categoryid:categoryId}).sort({salePrice:1}).limit(limit).skip((page-1)*limit).populate('categoryid');
+            filter = 'lowtohigh'
+        }else if(req.query.sort=="hightolow"){
+            productData = await Product.find({categoryid:categoryId}).sort({salePrice:-1}).limit(limit).skip((page-1)*limit).populate('categoryid');
+            filter = 'hightolow'
+        }else{
+            productData = await Product.find({categoryid:categoryId}).limit(limit).skip((page-1)*limit).populate('categoryid');
+        }
+        count = await Product.find({categoryid:categoryId}).countDocuments();
+        const totalPages = Math.ceil(count/limit);
+        const email = req.session.email;
+        const userData = await User.findOne({email:email});
+        let wishListData;
+        let userId;
+        if(userData){
+            userId = userData._id;
+            wishListData = await Wishlist.findOne({userId:userId})
+        }else{
+            wishListData = null;
+        }
+        res.render('all-product-category',{productData,totalPages,filter,categoryData,categoryId,userData,wishListData})
     } catch (error) {
         console.log(error)
     }
@@ -1373,5 +1568,5 @@ module.exports = {loadLogin,loadRegister,insertUser,loadHome,verifyOtp,forgotPas
     updateQuantity,getHome,logoutUser,getOrderDetails,updateInfo,clearAllCart,editAddressFromCheckout,
     commitEditAddressFromCheckout,getProductResults,filterByAscending,filterByDescending,applyCoupon,payByWallet,
     applyReferral,getWishlist,addToWishlist,addToCartFromWishlist,removeFromWishlist,deleteAddress,submitProductReview,
-    postReviewReply,getAllProducts
+    postReviewReply,getAllProducts,getDataByCategory,filterByAvgRating,checkStockAtCheckout,checkStockAtCart
 }

@@ -18,7 +18,7 @@ const checkCategoryOffer = cron.schedule('0 * * * * *', async() => {
         })
         
         const updatePromises = expiredCategoryProducts.map(async (product) => {
-            if(product.discountPercentage==0){
+            if(product.discountPercentage==0&&product.dealOfDay==false){
                 product.salePrice = product.regularPrice
                 return product.save();
             }

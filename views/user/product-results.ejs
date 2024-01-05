@@ -345,14 +345,13 @@
             </div>
         </div>
     </div>
+
     <main class="main">
-        <div class="page-header breadcrumb-wrap">
-            <div class="container">
-                <div class="breadcrumb">
-                    <a href="index.html" rel="nofollow">Home</a>
-                    <span></span> Shop
-                </div>
-            </div>
+        <div class="container my-4">
+            <form action="/product-results">
+                <input type="text" placeholder="Search for items..." name="search" style="width: 350px;">
+                <button type="submit">Search</button>
+            </form>
         </div>
         <section class="mt-50 mb-50">
             <div class="container">
@@ -360,18 +359,18 @@
                     <div class="col-lg-9">
                         <div class="shop-product-fillter style-2">
                             <div class="totall-product">
-                                <p> We found <strong class="text-brand">688</strong> items for you!</p>
+                                <!-- <p> We found <strong class="text-brand">688</strong> items for you!</p> -->
                             </div>
                             <div class="sort-by-product-area">
                                 <div class="sort-by-cover mr-10">
-                                    <div class="sort-by-product-wrap">
+                                    <!-- <div class="sort-by-product-wrap">
                                         <div class="sort-by">
                                             <span><i class="fi-rs-apps"></i>Show:</span>
                                         </div>
                                         <div class="sort-by-dropdown-wrap">
                                             <span> 50 <i class="fi-rs-angle-small-down"></i></span>
                                         </div>
-                                    </div>
+                                    </div> -->
                                     <div class="sort-by-dropdown">
                                         <ul>
                                             <li><a class="active" href="#">50</a></li>
@@ -401,8 +400,8 @@
 
                                             <li><a href="/filterbydsc?search=<%=search%>&page=<%=1%>&filterhtl" class="filetbyltoh">Price:
                                                     High to Low</a></li>
-                                            <li><a href="#">Release Date</a></li>
-                                            <li><a href="#">Avg. Rating</a></li>
+                                            <!-- <li><a href="#">Release Date</a></li> -->
+                                            <li><a href="/filterbyavgRating?search=<%=search%>&page=<%=1%>&filteravgRating">Avg. Rating</a></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -466,6 +465,19 @@
                                             // });
                                             ulist.querySelector('li:nth-child(3) a').classList.add('active');
                                         }
+                                        else if(isQueryParamPresent('filteravgRating')){
+                                            console.log('filterhtl query  in parameter');
+                                            // dropDown.forEach((item) => {
+                                            //     if (item.textContent === sample) {
+                                            //         console.log(item);
+                                            //         item.children[1].classList.add('active');
+                                            //     } else {
+                                            //         item.querySelector('a').classList.remove('active');
+                                            //         console.log("ELSE");
+                                            //     }
+                                            // });
+                                            ulist.querySelector('li:nth-child(4) a').classList.add('active');
+                                        }
                                         else{
                                             console.log('filter query  not in parameter');
                                             ulist.querySelector('li:first-child a').classList.add('active');
@@ -489,7 +501,7 @@
                                         <div class="product-img-action-wrap">
                                             <div class="product-img product-img-zoom">
                                                 <div class="product-img-inner">
-                                                    <a href="shop-product-right.html">
+                                                    <a href="/getdetails?id=<%=productData[i]._id%>">
                                                         <img class="default-img" src="<%=productData[i].image[0]%>"
                                                             alt="">
                                                         <!-- <img class="hover-img" src="assets/imgs/shop/product-3-2.jpg" alt=""> -->
@@ -513,7 +525,7 @@
                                             <div class="product-category">
                                                 <a href="shop-grid-right.html"><%=productData[i].categoryid.categoryName%></a>
                                             </div>
-                                            <h2><a href="shop-product-right.html">
+                                            <h2><a href="/getdetails?id=<%=productData[i]._id%>">
                                                     <%=productData[i].productName%>
                                                 </a></h2>
                                             <div class="product-price">
@@ -521,7 +533,9 @@
                                                 <span class="old-price">₹<%=productData[i].regularPrice%></span>
                                             </div>
                                             <p class="mt-15">
-                                                <%=productData[i].description%>
+                                                <%=productData[i].description.length > 100 ? 
+                                            productData[i].description.slice(0, 100) + '...' : 
+                                            productData[i].description %>
                                             </p>
                                             <div class="product-action-1 show">
                                                 <%if(productData[i].quantity==0){%>
@@ -567,6 +581,11 @@
                                                         href="/filterbydsc?search=<%=search%>&page=<%=i%>&filterhtl&filter=<%=filter%>">
                                                         <%=i%>
                                                     </a></li>
+                                                    <%}else if(filter=='avg'){%>
+                                                        <li class="page-item"><a class="page-link"
+                                                            href="/filterbyavgRating?search=<%=search%>&page=<%=i%>&filteravg&filter=<%=filter%>">
+                                                            <%=i%>
+                                                        </a></li>
                                                     <%}else{%>
                                                         <li class="page-item"><a class="page-link"
                                                             href="/product-results?search=<%=search%>&page=<%=i%>">

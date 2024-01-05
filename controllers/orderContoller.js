@@ -40,8 +40,20 @@ const placeOrder = async(req,res) =>{
         })
 
         const userId = userData._id;
-       await Coupon.findOneAndUpdate({couponcode:req.body.couponCode},{$push:{redeemedUsers:userId}})
-       
+        console.log("USER ID",userId)
+        const couponCode = req.body.couponcode
+        let couponId;
+       const coupon = await Coupon.findOne({couponcode:req.body.couponCode})
+       if(coupon){
+        couponId = coupon._id
+       }else{
+        couponId = null;
+       }
+       console.log("COUPON ID",couponId)
+       if(couponId!=null){
+        coupon.redeemedUsers.push(userId)
+        await coupon.save();
+       }
        let randomOrderId = await generateOrderId();
        console.log("Random generted order id",randomOrderId)
        let order;
@@ -53,7 +65,8 @@ const placeOrder = async(req,res) =>{
             totalAmount:totalAmount,
             paymentMethod:paymentMethod,
             paymentStatus:"Success",
-            orderId:randomOrderId
+            orderId:randomOrderId,
+            couponId:couponId
         })
        }else{
 
@@ -64,7 +77,8 @@ const placeOrder = async(req,res) =>{
             addressIndex:addressIndex,
             totalAmount:totalAmount,
             paymentMethod:paymentMethod,
-            orderId:randomOrderId
+            orderId:randomOrderId,
+            couponId:couponId
         })
        }
        

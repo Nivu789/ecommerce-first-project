@@ -8,6 +8,7 @@ const adminAuth = require('../auth/adminAuthentication')
 const session = require('express-session')
 const crypto = require('crypto');
 const secret = crypto.randomBytes(64).toString('hex'); 
+const dealOfDay = require('../controllers/dealOfDayController')
 
 adminRoute.set('views','./views/admin');
 
@@ -144,5 +145,13 @@ adminRoute.delete('/deleteImage/:productId/:index',adminAuth.isLogin, async (req
   adminRoute.post('/savecategoryoffersflat',adminFunctions.setFlatDiscountCategory)
 
   adminRoute.post('/remove-coupon',adminFunctions.removeCoupon)
+
+  adminRoute.get('/deal-day',adminFunctions.setDealOfTheDay)
+
+  adminRoute.post('/add-deal-day',upload.single('image'),dealOfDay.addDealOfDay)
+
+  adminRoute.post('/edit-deal-of-day',dealOfDay.editDealOfDay)
+
+  adminRoute.post('/commit-edit-deal-of-day',dealOfDay.commitEditDealOfDay)
 
 module.exports = adminRoute;

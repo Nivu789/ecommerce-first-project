@@ -9976,3 +9976,16 @@ span.fi-rs-apps {
 .zoomContainer{ z-index: 9999;}
 .zoomWindow{ z-index: 9999;}
 /*# sourceMappingURL=main.css.map */
+
+
+/* Styles for regular display */
+.hidden-on-print {
+    display: block; /* or flex, inline, etc. based on your layout */
+}
+
+/* Styles for print */
+@media print {
+    .hidden-on-print {
+        display: none;
+    }
+}

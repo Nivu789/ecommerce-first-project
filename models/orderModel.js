@@ -47,7 +47,14 @@ const orderSchema = mongoose.Schema({
     },
     orderId:{
         type:String
-    }
+    },
+    couponId:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'Coupon'
+    }   
+            
+        
+    
 
 })
 

@@ -8,6 +8,7 @@ const sharp = require('sharp');
 const fs = require('fs');
 const fse = require('fs-extra');
 const Banner = require('../models/bannerModel')
+const DealOfDay = require('../models/dealOfDay')
 
 //hello
 const getLogin = async (req, res) => {
@@ -247,50 +248,66 @@ const createProduct = async (req, res) => {
         if (/^\s|\s$/.test(productName) || parseFloat(req.body.regularPrice) < 0 || parseFloat(req.body.salePrice) < 0) {
             console.log("white")
             res.render('addproduct', { message: '0', categoryData, brandData })
-        } else {
-            // const imageUrls = req.files.map((file) => 'uploads/' + file.filename);
-
-            const imagePromises = req.files.map(async (file) => {
-                const imagePath = `uploads/${file.filename}`;
-                const resizedImagePath = `uploads/resized_${file.filename}`;
-                await sharp(imagePath)
-                    .resize({ width: 572, height: 572 })
-                    .toFile(resizedImagePath);
-
-                // Remove the original uploaded image
-                // fs.unlinkSync(imagePath);
-                fse.remove(imagePath, (err) => {
-                    if (err) {
-                        console.error(err);
-                    } else {
-                        console.log('File deleted successfully');
-                    }
+        } else if(parseFloat(req.body.regularPrice) < parseFloat(req.body.salePrice)){
+            res.render('addproduct', { message: '1', categoryData, brandData })
+        }
+        else {
+            let imageOk=true;
+            for(i=0;i<req.files.length;i++){
+                if(req.files[i].mimetype!=='image/png'&&req.files[i].mimetype!=='image/jpeg'&&req.files[i].mimetype!=='image/webp'){
+                    imageOk=false;
+                    break;
+                }
+            }
+            if(!imageOk){
+                res.render('addproduct', { message: '2', categoryData, brandData })
+            }
+            
+                
+            else{
+                const imagePromises = req.files.map(async (file) => {
+                    const imagePath = `uploads/${file.filename}`;
+                    const resizedImagePath = `uploads/resized_${file.filename}`;
+                    await sharp(imagePath)
+                        .resize({ width: 572, height: 572 })
+                        .toFile(resizedImagePath);
+    
+                    // Remove the original uploaded image
+                    // fs.unlinkSync(imagePath);
+                    fse.remove(imagePath, (err) => {
+                        if (err) {
+                            console.error(err);
+                        } else {
+                            console.log('File deleted successfully');
+                        }
+                    });
+    
+                    return resizedImagePath;
                 });
-
-                return resizedImagePath;
-            });
-
-            const resizedImageUrls = await Promise.all(imagePromises);
-
-            const requestedQuantity = parseInt(req.body.quantity, 10);
-
-            // Check if requestedQuantity is a valid number and greater than or equal to 0
-            const quantity = !isNaN(requestedQuantity) && requestedQuantity >= 0 ? requestedQuantity : 1;
-            const product = new Product({
-                productName: req.body.productName,
-                brand: req.body.brand,
-                description: req.body.description,
-                categoryid: req.body.category,
-                // regularPrice: req.body.price,
-                description: req.body.description,
-                regularPrice: req.body.regularPrice,
-                salePrice: req.body.salePrice,
-                quantity: quantity,
-                image: resizedImageUrls,
-                is_active: true
-            })
-            await product.save();
-            res.redirect('/admin/products')
+    
+                const resizedImageUrls = await Promise.all(imagePromises);
+    
+                const requestedQuantity = parseInt(req.body.quantity, 10);
+    
+                // Check if requestedQuantity is a valid number and greater than or equal to 0
+                const quantity = !isNaN(requestedQuantity) && requestedQuantity >= 0 ? requestedQuantity : 1;
+                const product = new Product({
+                    productName: req.body.productName,
+                    brand: req.body.brand,
+                    description: req.body.description,
+                    categoryid: req.body.category,
+                    // regularPrice: req.body.price,
+                    description: req.body.description,
+                    regularPrice: req.body.regularPrice,
+                    salePrice: req.body.salePrice,
+                    quantity: quantity,
+                    image: resizedImageUrls,
+                    is_active: true
+                })
+                await product.save();
+                res.redirect('/admin/products')
+            }
+            
         }
 
 
@@ -323,43 +340,57 @@ const commitProductUpdate = async (req, res) => {
         if (/^\s|\s$/.test(productName) || parseFloat(req.body.regularPrice) < 0 || parseFloat(req.body.salePrice) < 0) {
             console.log("white")
             res.render('editproduct', { message: "0", products: product, categoryData, brandData })
-        } else {
+        }else if(parseFloat(req.body.regularPrice) < parseFloat(req.body.salePrice)){
+            res.render('editproduct', { message: "1", products: product, categoryData, brandData })
+        }
+         else {
             let Newimages = []
 
-
-
-            await Promise.all(req.files.map(async (file) => {
-                const imagePath = `uploads/${file.filename}`;
-                const resizedImagePath = `uploads/resized_${file.filename}`;
-
-                // Resize the image
-                await sharp(imagePath)
-                    .resize({ width: 572, height: 572 })
-                    .toFile(resizedImagePath);
-
-
-
-                // Push the resized image path to Newimages array
-                Newimages.push(resizedImagePath);
-            }));
-
-            // Now that all asynchronous operations are completed, proceed with further processing
-            Newimages.forEach((image) => {
-                product.image.push(image);
-            });
-
-            // Save the product
-            await product.save();
-
-            console.log(req.body.categoryId)
-            await Product.findByIdAndUpdate({ _id: id }, {
-                $set: {
-                    productName: req.body.productName, brand: req.body.brand, description: req.body.description,
-                    regularPrice: req.body.regularPrice, salePrice: req.body.salePrice, categoryid: req.body.categoryId
+            let imageOk=true;
+            for(i=0;i<req.files.length;i++){
+                if(req.files[i].mimetype!=='image/png'&&req.files[i].mimetype!=='image/jpeg'&&req.files[i].mimetype!=='image/webp'){
+                    imageOk=false;
+                    break;
                 }
-            })
+            }
+            if(!imageOk){
+                res.render('editproduct', { message: "2", products: product, categoryData, brandData })
+            }else{
+                await Promise.all(req.files.map(async (file) => {
+                    const imagePath = `uploads/${file.filename}`;
+                    const resizedImagePath = `uploads/resized_${file.filename}`;
+    
+                    // Resize the image
+                    await sharp(imagePath)
+                        .resize({ width: 572, height: 572 })
+                        .toFile(resizedImagePath);
+    
+    
+    
+                    // Push the resized image path to Newimages array
+                    Newimages.push(resizedImagePath);
+                }));
+    
+                // Now that all asynchronous operations are completed, proceed with further processing
+                Newimages.forEach((image) => {
+                    product.image.push(image);
+                });
+    
+                // Save the product
+                await product.save();
+    
+                console.log(req.body.categoryId)
+                await Product.findByIdAndUpdate({ _id: id }, {
+                    $set: {
+                        productName: req.body.productName, brand: req.body.brand, description: req.body.description,
+                        regularPrice: req.body.regularPrice, salePrice: req.body.salePrice, categoryid: req.body.categoryId
+                    }
+                })
+    
+                res.redirect('/admin/products')
+            }
 
-            res.redirect('/admin/products')
+            
         }
 
     } catch (error) {
@@ -395,43 +426,55 @@ const createCategory = async (req, res) => {
         if (/\s/.test(categoryName)) {
             res.render('category', { message: "1", categoryData: categoryData })
         } else {
-            console.log(req.files)
-            const imagePromises = req.files.map(async (file) => {
-                const imagePath = `uploads/${file.filename}`;
-                const resizedImagePath = `uploads/resized_${file.filename}`;
-                await sharp(imagePath)
-                    .resize({ width: 572, height: 572 })
-                    .toFile(resizedImagePath);
-
-                // Remove the original uploaded image
-                // fs.unlinkSync(imagePath);
-                fse.remove(imagePath, (err) => {
-                    if (err) {
-                        console.error(err);
-                    } else {
-                        console.log('File deleted successfully');
-                    }
-                });
-
-                return resizedImagePath;
-            });
-
-            const resizedImageUrls = await Promise.all(imagePromises);
-
-            const categoryInfo = await new Category({
-                categoryName: req.body.categoryName,
-                description: req.body.description,
-                is_active: true,
-                image: resizedImageUrls
-            })
-            const is_category = await Category.findOne({ categoryName: req.body.categoryName });
-            const categoryData = await Category.find({})
-            if (is_category) {
-                res.render('category', { message: "0", categoryData: categoryData })
-            } else {
-                await categoryInfo.save();
-                res.redirect('/admin/category')
+            let imageOk=true;
+            for(i=0;i<req.files.length;i++){
+                if(req.files[i].mimetype!=='image/png'&&req.files[i].mimetype!=='image/jpeg'&&req.files[i].mimetype!=='image/webp'){
+                    imageOk=false;
+                    break;
+                }
             }
+            if(!imageOk){
+                res.render('category', { message: "2", categoryData: categoryData })
+            }else{
+                const imagePromises = req.files.map(async (file) => {
+                    const imagePath = `uploads/${file.filename}`;
+                    const resizedImagePath = `uploads/resized_${file.filename}`;
+                    await sharp(imagePath)
+                        .resize({ width: 572, height: 572 })
+                        .toFile(resizedImagePath);
+    
+                    // Remove the original uploaded image
+                    // fs.unlinkSync(imagePath);
+                    fse.remove(imagePath, (err) => {
+                        if (err) {
+                            console.error(err);
+                        } else {
+                            console.log('File deleted successfully');
+                        }
+                    });
+    
+                    return resizedImagePath;
+                });
+    
+                const resizedImageUrls = await Promise.all(imagePromises);
+    
+                const categoryInfo = await new Category({
+                    categoryName: req.body.categoryName,
+                    description: req.body.description,
+                    is_active: true,
+                    image: resizedImageUrls
+                })
+                const is_category = await Category.findOne({ categoryName: req.body.categoryName });
+                const categoryData = await Category.find({})
+                if (is_category) {
+                    res.render('category', { message: "0", categoryData: categoryData })
+                } else {
+                    await categoryInfo.save();
+                    res.redirect('/admin/category')
+                }
+            }
+            
+            
         }
 
     } catch (error) {
@@ -478,43 +521,55 @@ const commitCategoryUpdate = async (req, res) => {
         if (categoryExist) {
             res.render('editcategory', { categoryData, message: '0' })
         } else {
-            console.log("req files", req.files)
-            if (req.files.length==0) {
-                console.log("No photo")
-                await Category.findByIdAndUpdate({ _id: id }, { $set: { categoryName: req.body.categoryName, description: req.body.description } })
-                res.redirect('/admin/category')
-            }else {
-                let Newimages = []
-
-                categoryData.image = [];
-
-                await Promise.all(req.files.map(async (file) => {
-                    const imagePath = `uploads/${file.filename}`;
-                    const resizedImagePath = `uploads/resized_${file.filename}`;
-
-                    // Resize the image
-                    await sharp(imagePath)
-                        .resize({ width: 572, height: 572 })
-                        .toFile(resizedImagePath);
-
-
-
-                    // Push the resized image path to Newimages array
-                    Newimages.push(resizedImagePath);
-                    categoryData.image.push(resizedImagePath);
-                }));
-                console.log(Newimages)
-                // Now that all asynchronous operations are completed, proceed with further processing
-
-
-
-
-                // Save the product
-                await categoryData.save();
-                await Category.findByIdAndUpdate({ _id: id }, { $set: { categoryName: req.body.categoryName, description: req.body.description } })
-
-                res.redirect('/admin/category')
+            let imageOk=true;
+            for(i=0;i<req.files.length;i++){
+                if(req.files[i].mimetype!=='image/png'&&req.files[i].mimetype!=='image/jpeg'&&req.files[i].mimetype!=='image/webp'){
+                    imageOk=false;
+                    break;
+                }
             }
+            if(!imageOk){
+                res.render('editcategory', { categoryData, message: '1' })
+            }else{
+                if (req.files.length==0) {
+                    console.log("No photo")
+                    await Category.findByIdAndUpdate({ _id: id }, { $set: { categoryName: req.body.categoryName, description: req.body.description } })
+                    res.redirect('/admin/category')
+                }else {
+                    let Newimages = []
+    
+                    categoryData.image = [];
+    
+                    await Promise.all(req.files.map(async (file) => {
+                        const imagePath = `uploads/${file.filename}`;
+                        const resizedImagePath = `uploads/resized_${file.filename}`;
+    
+                        // Resize the image
+                        await sharp(imagePath)
+                            .resize({ width: 572, height: 572 })
+                            .toFile(resizedImagePath);
+    
+    
+    
+                        // Push the resized image path to Newimages array
+                        Newimages.push(resizedImagePath);
+                        categoryData.image.push(resizedImagePath);
+                    }));
+                    console.log(Newimages)
+                    // Now that all asynchronous operations are completed, proceed with further processing
+    
+    
+    
+    
+                    // Save the product
+                    await categoryData.save();
+                    await Category.findByIdAndUpdate({ _id: id }, { $set: { categoryName: req.body.categoryName, description: req.body.description } })
+    
+                    res.redirect('/admin/category')
+                }
+            }
+            
+            
         } 
     
     }catch (error) {
@@ -590,12 +645,7 @@ const deleteCategory = async (req, res) => {
 
     const getOrderList = async (req, res) => {
         try {
-            const orderData = await Order.find({}).populate({
-                path: 'userId',
-                model: User,
-                select: 'name email'
-            })
-            console.log(orderData)
+            const orderData = await Order.find({}).sort({orderDate:-1}).populate('userId')
             res.render('orderlist', { orderData })
         } catch (error) {
             console.log(error)
@@ -612,7 +662,7 @@ const deleteCategory = async (req, res) => {
             }).populate({
                 path: 'userId', // Replace with your actual path
                 model: User,
-                select: 'name phone address'
+                select: 'name phone address email'
             });
             console.log(orderData)
             console.log(orderData.products)
@@ -661,36 +711,48 @@ const deleteCategory = async (req, res) => {
             } else if (/^\s|\s$/.test(brandName)) {
                 res.render('brand', { message: "1", brandData })
             } else {
-                const imagePromises = req.files.map(async (file) => {
-                    const imagePath = `uploads/${file.filename}`;
-                    const resizedImagePath = `uploads/resized_${file.filename}`;
-                    await sharp(imagePath)
-                        .resize({ width: 572, height: 572 })
-                        .toFile(resizedImagePath);
-
-                    // Remove the original uploaded image
-                    // fs.unlinkSync(imagePath);
-                    fse.remove(imagePath, (err) => {
-                        if (err) {
-                            console.error(err);
-                        } else {
-                            console.log('File deleted successfully');
-                        }
+                let imageOk=true;
+                for(i=0;i<req.files.length;i++){
+                if(req.files[i].mimetype!=='image/png'&&req.files[i].mimetype!=='image/jpeg'&&req.files[i].mimetype!=='image/webp'){
+                    imageOk=false;
+                    break;
+                }
+                }
+                if(!imageOk){
+                    res.render('brand', { message: "2", brandData })
+                }else{
+                    const imagePromises = req.files.map(async (file) => {
+                        const imagePath = `uploads/${file.filename}`;
+                        const resizedImagePath = `uploads/resized_${file.filename}`;
+                        await sharp(imagePath)
+                            .resize({ width: 572, height: 572 })
+                            .toFile(resizedImagePath);
+    
+                        // Remove the original uploaded image
+                        // fs.unlinkSync(imagePath);
+                        fse.remove(imagePath, (err) => {
+                            if (err) {
+                                console.error(err);
+                            } else {
+                                console.log('File deleted successfully');
+                            }
+                        });
+    
+                        return resizedImagePath;
                     });
-
-                    return resizedImagePath;
-                });
-
-                const resizedImageUrls = await Promise.all(imagePromises);
-
-                const brand = new Brand({
-                    brandName: req.body.brandname,
-                    description: req.body.description,
-                    is_active: 1,
-                    image: resizedImageUrls
-                })
-                await brand.save();
-                res.redirect('/admin/brands')
+    
+                    const resizedImageUrls = await Promise.all(imagePromises);
+    
+                    const brand = new Brand({
+                        brandName: req.body.brandname,
+                        description: req.body.description,
+                        is_active: 1,
+                        image: resizedImageUrls
+                    })
+                    await brand.save();
+                    res.redirect('/admin/brands')
+                }
+                
             }
 
         } catch (error) {
@@ -748,38 +810,50 @@ const deleteCategory = async (req, res) => {
             } else if (/^\s|\s$/.test(brandName)) {
                 res.render('editbrand', { brandData, message: '0' })
             } else {
-                if(req.files.length>0){
-                    const imagePromises = req.files.map(async (file) => {
-                        const imagePath = `uploads/${file.filename}`;
-                        const resizedImagePath = `uploads/resized_${file.filename}`;
-                        await sharp(imagePath)
-                            .resize({ width: 572, height: 572 })
-                            .toFile(resizedImagePath);
-    
-                        // Remove the original uploaded image
-                        // fs.unlinkSync(imagePath);
-                        fse.remove(imagePath, (err) => {
-                            if (err) {
-                                console.error(err);
-                            } else {
-                                console.log('File deleted successfully');
-                            }
-                        });
-    
-                        return resizedImagePath;
-                    });
-    
-                    const resizedImageUrls = await Promise.all(imagePromises);
-                    // const imagePath = `uploads/${req.files[0].filename}`;
-                    await Brand.findByIdAndUpdate({ _id: brandId }, { $set: { brandName: req.body.brandname, description: req.body.description, image: resizedImageUrls } })
-                }else{
-                    await Brand.findByIdAndUpdate({ _id: brandId }, { $set: { brandName: req.body.brandname, description: req.body.description } })
+                console.log("Else")
+                let imageOk=true;
+                for(i=0;i<req.files.length;i++){
+                if(req.files[i].mimetype!=='image/png'&&req.files[i].mimetype!=='image/jpeg'&&req.files[i].mimetype!=='image/webp'){
+                    imageOk=false;
+                    break;
                 }
-                
-              res.redirect('/admin/brands')
-                
             }
-
+                if(!imageOk){
+                    console.log("HERE")
+                    res.render('editbrand', { brandData, message: '2' })
+                }else{
+                    if(req.files.length>0){
+                        const imagePromises = req.files.map(async (file) => {
+                            const imagePath = `uploads/${file.filename}`;
+                            const resizedImagePath = `uploads/resized_${file.filename}`;
+                            await sharp(imagePath)
+                                .resize({ width: 572, height: 572 })
+                                .toFile(resizedImagePath);
+        
+                            // Remove the original uploaded image
+                            // fs.unlinkSync(imagePath);
+                            fse.remove(imagePath, (err) => {
+                                if (err) {
+                                    console.error(err);
+                                } else {
+                                    console.log('File deleted successfully');
+                                }
+                            });
+        
+                            return resizedImagePath;
+                        });
+        
+                        const resizedImageUrls = await Promise.all(imagePromises);
+                        // const imagePath = `uploads/${req.files[0].filename}`;
+                        await Brand.findByIdAndUpdate({ _id: brandId }, { $set: { brandName: req.body.brandname, description: req.body.description, image: resizedImageUrls } })
+                    }else{
+                        await Brand.findByIdAndUpdate({ _id: brandId }, { $set: { brandName: req.body.brandname, description: req.body.description } })
+                    }
+                    res.redirect('/admin/brands')
+                }
+               
+            
+        }
 
         } catch (error) {
             console.log(error)
@@ -850,8 +924,22 @@ const deleteCategory = async (req, res) => {
 
     const getAllCoupons = async (req, res) => {
         try {
+            const status = req.query.status||null
+            const error = req.query.error||null
             const couponData = await Coupon.find({})
-            res.render('coupons', { couponData })
+            if(error){
+                res.render('coupons',{couponData,message:'1'})
+            }
+            else if(status=="failed"){
+                res.render('coupons', { couponData ,message:'0'})
+            }
+            else if(status=="failedwithspace"){
+                res.render('coupons', { couponData ,message:'2'})
+            }
+            else{
+                res.render('coupons', { couponData ,message:''})
+            }
+            
         } catch (error) {
             console.log(error)
         }
@@ -864,33 +952,47 @@ const deleteCategory = async (req, res) => {
             const date = req.body.date
             const description = req.body.description
             const minimumAmount = req.body.minimumPurchase
-            if(req.body.offerType==='Flat Offer'){
-                const couponData = new Coupon({
-                    couponcode: couponCode,
-                    status: true,
-                    discount: discountAmount,
-                    minPurchase: minimumAmount,
-                    expiryDate: date,
-                    limit: 1,
-                    description: description
-                })
-                await couponData.save();
-            }else{
-                const couponData = new Coupon({
-                    couponcode: couponCode,
-                    status: true,
-                    offerPercentage:discountAmount,
-                    minPurchase: minimumAmount,
-                    expiryDate: date,
-                    limit: 1,
-                    description: description
-                })
-                await couponData.save();
+            const couponExist = await Coupon.findOne({couponcode:couponCode})
+            if(couponExist){
+                res.redirect('/admin/coupons?status=failed')
+            }else if (/\s/.test(couponCode)){
+                res.redirect('/admin/coupons?status=failedwithspace')
+            }
+            else{
+                if(req.body.offerType==='Flat Offer'){
+                    const couponData = new Coupon({
+                        couponcode: couponCode,
+                        status: true,
+                        discount: discountAmount,
+                        minPurchase: minimumAmount,
+                        expiryDate: date,
+                        limit: 1,
+                        description: description
+                    })
+                    await couponData.save();
+                    res.redirect('/admin/coupons')
+                }else{
+                    if(discountAmount>99){
+                        res.redirect('/admin/coupons?error=percentage')
+                    }else{
+                        const couponData = new Coupon({
+                            couponcode: couponCode,
+                            status: true,
+                            offerPercentage:discountAmount,
+                            minPurchase: minimumAmount,
+                            expiryDate: date,
+                            limit: 1,
+                            description: description
+                        })
+                        await couponData.save();
+                        res.redirect('/admin/coupons')
+                    }
+                    
+                }
+                
+                
             }
             
-
-            
-            res.redirect('/admin/coupons')
         } catch (error) {
             console.log(error)
         }
@@ -917,13 +1019,20 @@ const deleteCategory = async (req, res) => {
                         minPurchase: minPurchase, expiryDate: expiryDate, description: description, limit: 1
                     }
                 })
+                res.json({message:''})
             }else if(editOfferType==='Percentage Offer'){
-                couponData = await Coupon.findByIdAndUpdate({ _id: couponId }, {
-                    $set: {
-                        couponcode: couponCode, discount: 0,offerPercentage:discount,
-                        minPurchase: minPurchase, expiryDate: expiryDate, description: description, limit: 1
-                    }
-                })
+                if(discount>99){
+                    res.json({message:"Failed"})
+                    return 
+                }else{
+                    couponData = await Coupon.findByIdAndUpdate({ _id: couponId }, {
+                        $set: {
+                            couponcode: couponCode, discount: 0,offerPercentage:discount,
+                            minPurchase: minPurchase, expiryDate: expiryDate, description: description, limit: 1
+                        }
+                    })
+                }
+                
             }
             
             if (couponData) {
@@ -1299,6 +1408,22 @@ const deleteCategory = async (req, res) => {
         }
     }
 
+    const setDealOfTheDay = async(req,res) =>{
+        try {
+            const productData = await Product.find({})
+            const dealOfDayData = await DealOfDay.find({active:true})
+            const fullDealOfDayData = await DealOfDay.find({})
+            if(req.query.status=="failed"){
+                res.render('deal-of-the-day',{productData,dealOfDayData,fullDealOfDayData,message:'0'})
+            }else{
+                res.render('deal-of-the-day',{productData,dealOfDayData,fullDealOfDayData,message:''})
+            }
+            
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     module.exports = {
         loadDashboard, displayProducts, displayCategories, loadCreateProduct,
         createProduct, editProduct, commitProductUpdate,
@@ -1308,5 +1433,6 @@ const deleteCategory = async (req, res) => {
         unblockBrand, editBrand, commitEditBrand, getProductOffers, commitProductOffers, getCategoryOffers,
         commitCategoryOffers, getAllCoupons, createCoupon, editCoupon, saveEditedCoupon, deleteCategoryOffer,
         editCategoryOffers, commitEditCategoryOffers, getBannerManagement, 
-        addBanner, editBanner, editProductOffer, deleteProductOffer,getSalesReport,filterReport,setFlatDiscountCategory,removeCoupon
+        addBanner, editBanner, editProductOffer, deleteProductOffer,getSalesReport,filterReport,setFlatDiscountCategory,removeCoupon,
+        setDealOfTheDay
     }

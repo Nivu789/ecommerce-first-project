@@ -72,6 +72,10 @@ const products = mongoose.Schema({
     avgRating:{
         type:Number,
         default:0
+    },
+    dealOfDay:{
+        type:Boolean,
+        default:false
     }
 })
 

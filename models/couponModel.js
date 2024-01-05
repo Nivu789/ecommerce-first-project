@@ -26,13 +26,7 @@ const couponSchema = new mongoose.Schema({
         type:Number,
         required:true
     },
-    redeemedUsers:[
-        {
-            userId:{
-                type: mongoose.Schema.Types.ObjectId,
-            }
-        }
-],
+    redeemedUsers:[],
     description:{
         type:String
 
