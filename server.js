@@ -3,7 +3,7 @@ const app = express();
 const path = require('path')
 
 const mongoose = require('mongoose');
-mongoose.connect("mongodb://127.0.0.1:27017/Companion")
+mongoose.connect("mongodb+srv://nivuyt789:nivedneha@ecommerce.z6wlh5z.mongodb.net/Companion")
 const userRoute = require('./routes/userRoute')
 const adminRoute = require('./routes/adminRoute')
 app.use(express.urlencoded({extended:true}))
