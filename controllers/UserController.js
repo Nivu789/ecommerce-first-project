@@ -16,7 +16,7 @@ const Wishlist = require('../models/wishlistModel');
 const offerExpiry = require('../functions/offerExpiry')
 const Banner = require('../models/bannerModel')
 const Brand = require('../models/brandModel')
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const DealOfDay = require('../models/dealOfDay');
 const mongoose = require('mongoose')
 
