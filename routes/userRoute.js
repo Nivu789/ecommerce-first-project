@@ -148,5 +148,7 @@ userRoute.get('/check-stock-checkout',userFunctions.checkStockAtCheckout)
 
 userRoute.post('/check-stock-cart',userFunctions.checkStockAtCart)
 
+userRoute.post('/add-to-cart-from-home',userFunctions.addToCartFromHome)
+
 
 module.exports = userRoute;

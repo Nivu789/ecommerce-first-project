@@ -192,8 +192,10 @@ const getDashboard = async (req, res) => {
 const loadDashboard = async (req, res) => {
     try {
         const email = req.body.email
+        console.log(email)
         const password = req.body.password
         const userData = await User.findOne({ email: email })
+        console.log(userData)
         if (userData.is_admin == 1) {
             if (userData.password == password) {
                 req.session.activeAdmin = true

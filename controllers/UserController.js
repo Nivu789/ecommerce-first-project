@@ -647,6 +647,30 @@ const addToWishlist = async(req,res) =>{
     }
 }
 
+const addToCartFromHome = async(req,res) =>{
+    try {
+        console.log(req.body)
+        const products = {
+            productId:req.body.productId,
+            quantity:req.body.quantity
+        }
+        const productExist = await User.findOne({userId: req.body.userId,
+            cart: {
+                $elemMatch: { productId: req.body.productId }
+            }})
+        console.log("Product Exist",productExist)
+        if(productExist){
+            res.json({message:"Exist"})
+        }else{
+            await User.findOneAndUpdate({userId:req.body.userId},{$push:{products:products}})
+            res.json({message:"Added"})
+        }
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 const addToCartFromWishlist = async(req,res) =>{
     try {
         console.log("WORKING")
@@ -1568,5 +1592,5 @@ module.exports = {loadLogin,loadRegister,insertUser,loadHome,verifyOtp,forgotPas
     updateQuantity,getHome,logoutUser,getOrderDetails,updateInfo,clearAllCart,editAddressFromCheckout,
     commitEditAddressFromCheckout,getProductResults,filterByAscending,filterByDescending,applyCoupon,payByWallet,
     applyReferral,getWishlist,addToWishlist,addToCartFromWishlist,removeFromWishlist,deleteAddress,submitProductReview,
-    postReviewReply,getAllProducts,getDataByCategory,filterByAvgRating,checkStockAtCheckout,checkStockAtCart
+    postReviewReply,getAllProducts,getDataByCategory,filterByAvgRating,checkStockAtCheckout,checkStockAtCart,addToCartFromHome
 }
