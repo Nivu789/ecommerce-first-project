@@ -9,6 +9,7 @@ const fs = require('fs');
 const fse = require('fs-extra');
 const Banner = require('../models/bannerModel')
 const DealOfDay = require('../models/dealOfDay')
+const Contact = require('../models/contactModel')
 
 //hello
 const getLogin = async (req, res) => {
@@ -1426,6 +1427,28 @@ const deleteCategory = async (req, res) => {
         }
     }
 
+
+    const getAllContacts = async(req,res) =>{
+        try {
+            const contactData = await Contact.find({})
+            res.render('contacts',{contactData})
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const markContactAsRead = async(req,res) =>{
+        try {
+            const contactId = req.body.contactId;
+            await Contact.findByIdAndUpdate({_id:contactId},{$set:{readByAdmin:true}})
+            res.status(200).json({message:"Success"})
+        } catch (error) {
+            console.log(error)
+        }
+
+    }
+
+
     module.exports = {
         loadDashboard, displayProducts, displayCategories, loadCreateProduct,
         createProduct, editProduct, commitProductUpdate,
@@ -1436,5 +1459,5 @@ const deleteCategory = async (req, res) => {
         commitCategoryOffers, getAllCoupons, createCoupon, editCoupon, saveEditedCoupon, deleteCategoryOffer,
         editCategoryOffers, commitEditCategoryOffers, getBannerManagement, 
         addBanner, editBanner, editProductOffer, deleteProductOffer,getSalesReport,filterReport,setFlatDiscountCategory,removeCoupon,
-        setDealOfTheDay
+        setDealOfTheDay,getAllContacts,markContactAsRead
     }

@@ -19,6 +19,7 @@ const Brand = require('../models/brandModel')
 const bcrypt = require('bcryptjs');
 const DealOfDay = require('../models/dealOfDay');
 const mongoose = require('mongoose')
+const Contact = require('../models/contactModel')
 
 var instance = new Razorpay({
     key_id: process.env.RAZORPAY_ID,
@@ -45,7 +46,7 @@ const loadLogin = (req,res) =>{
     }
 }
 
-const getHome = async(req,res) =>{
+const getHome = async(req,res,next) =>{
     try {
         // res.redirect('/home')
         const product = await Product.find({is_active:true}).populate('categoryid')
@@ -68,12 +69,14 @@ const getHome = async(req,res) =>{
         
         
     } catch (error) {
+        next(error);
         console.log(error)
     }
 }
 
   const loadHome = async(req,res) =>{
     try {
+        
         const email = req.session.email||req.body.email;
         const password = req.body.password;
         const userData = await User.findOne({email:email});
@@ -654,15 +657,15 @@ const addToCartFromHome = async(req,res) =>{
             productId:req.body.productId,
             quantity:req.body.quantity
         }
-        const productExist = await User.findOne({userId: req.body.userId,
-            cart: {
-                $elemMatch: { productId: req.body.productId }
-            }})
+        const productExist = await User.findOne({
+            _id: req.body.userId,
+            'cart.productId': req.body.productId
+        });
         console.log("Product Exist",productExist)
         if(productExist){
             res.json({message:"Exist"})
         }else{
-            await User.findOneAndUpdate({userId:req.body.userId},{$push:{products:products}})
+            await User.findByIdAndUpdate({_id:req.body.userId},{$push:{cart:products}})
             res.json({message:"Added"})
         }
 
@@ -1583,6 +1586,45 @@ const getDataByCategory = async(req,res) =>{
     }
 }
 
+const getContactPage = async(req,res) =>{
+    try {
+        const email = req.session.email;
+        const userData = await User.findOne({email:email});
+        let wishListData;
+        let userId;
+        if(userData){
+            userId = userData._id;
+            wishListData = await Wishlist.findOne({userId:userId})
+        }else{
+            wishListData = null;
+        }
+        res.render('contact',{userData,wishListData})
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+const postAContactRequest = async(req,res,next) =>{
+    try {
+       const {name,email,phone,subject,message} = req.body
+       const contact = new Contact({
+        name:name,
+        email:email,
+        phone:phone,
+        subject:subject,
+        message:message,
+        time:Date.now(),
+        readByAdmin:false
+       }) 
+
+       await contact.save();
+       res.json({message:"Done"})
+    } catch (error) {
+        next(error)
+        console.log(error)
+    }
+}
+
 
 
 
@@ -1592,5 +1634,6 @@ module.exports = {loadLogin,loadRegister,insertUser,loadHome,verifyOtp,forgotPas
     updateQuantity,getHome,logoutUser,getOrderDetails,updateInfo,clearAllCart,editAddressFromCheckout,
     commitEditAddressFromCheckout,getProductResults,filterByAscending,filterByDescending,applyCoupon,payByWallet,
     applyReferral,getWishlist,addToWishlist,addToCartFromWishlist,removeFromWishlist,deleteAddress,submitProductReview,
-    postReviewReply,getAllProducts,getDataByCategory,filterByAvgRating,checkStockAtCheckout,checkStockAtCart,addToCartFromHome
+    postReviewReply,getAllProducts,getDataByCategory,filterByAvgRating,checkStockAtCheckout,checkStockAtCart,addToCartFromHome,
+    getContactPage,postAContactRequest
 }

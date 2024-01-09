@@ -9,7 +9,7 @@ const adminRoute = require('./routes/adminRoute')
 app.use(express.urlencoded({extended:true}))
 app.use(express.json());
 const nocache = require("nocache");
-
+const errorHandler = require('./functions/errorHandler')
 
 app.use(nocache());
 
@@ -22,7 +22,11 @@ app.set('view engine','ejs')
 app.use('/',userRoute);
 app.use('/admin',adminRoute)
 
+app.use('*',(req,res)=>{
+    res.render('user/404page')
+})
 
+app.use(errorHandler);
 
 app.listen(3000,()=>{
     console.log("Server is running")

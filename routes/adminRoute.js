@@ -10,6 +10,7 @@ const crypto = require('crypto');
 const secret = crypto.randomBytes(64).toString('hex'); 
 const dealOfDay = require('../controllers/dealOfDayController')
 
+
 adminRoute.set('views','./views/admin');
 
 adminRoute.use(session({
@@ -153,5 +154,9 @@ adminRoute.delete('/deleteImage/:productId/:index',adminAuth.isLogin, async (req
   adminRoute.post('/edit-deal-of-day',dealOfDay.editDealOfDay)
 
   adminRoute.post('/commit-edit-deal-of-day',dealOfDay.commitEditDealOfDay)
+
+adminRoute.get('/get-contacts',adminAuth.isLogin,adminFunctions.getAllContacts)
+
+adminRoute.post('/mark-contact-as-read',adminFunctions.markContactAsRead)
 
 module.exports = adminRoute;

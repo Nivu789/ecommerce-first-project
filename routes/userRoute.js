@@ -8,6 +8,7 @@ const session = require('express-session')
 const crypto = require('crypto');
 const secret = crypto.randomBytes(64).toString('hex'); 
 
+
 userRoute.use(session({
     secret:secret,
     resave: true,
@@ -150,5 +151,8 @@ userRoute.post('/check-stock-cart',userFunctions.checkStockAtCart)
 
 userRoute.post('/add-to-cart-from-home',userFunctions.addToCartFromHome)
 
+userRoute.get('/contact',userAuth.isLogin,userFunctions.getContactPage)
+
+userRoute.post('/post-contact',userFunctions.postAContactRequest)
 
 module.exports = userRoute;
