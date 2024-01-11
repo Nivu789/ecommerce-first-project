@@ -10,6 +10,7 @@
     <meta property="og:url" content="">
     <meta property="og:image" content="">
 	<link rel="stylesheet" href="/assets/css/maind134.css?v=3.4">
+	<link rel="shortcut icon" type="image/x-icon" href="/assets/imgs/companion-high-resolution-logo-transparent.png">
 </head>
 <body>
 	<%-include('navbar.ejs')-%>
@@ -57,8 +58,8 @@
 						<a class="small text-muted" href="/forgotpassword">Forgot password?</a>
 						<p class="mb-5 pb-lg-2" style="color: #393f81;">Don't have an account? <a href="/register"
 							style="color: #393f81;">Register here</a></p>
-						<a href="#!" class="small text-muted">Terms of use.</a>
-						<a href="#!" class="small text-muted">Privacy policy</a>
+						<a href="/terms-of-services" class="small text-muted">Terms of use.</a>
+						<a href="/privacy-policy" class="small text-muted">Privacy policy</a>
 					  </form>
 					  
 	  
@@ -72,6 +73,6 @@
 	  </section>
 	  <script src="assets/js/vendor/jquery-3.6.0.min.js"></script>
 	  <script src="assets/js/plugins/jquery.vticker-min.js"></script>	
-	  
+	  <%-include('footer.ejs')-%>
 </body>
 </html>

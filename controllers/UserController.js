@@ -136,7 +136,7 @@ const insertUser = async(req,res) =>{
         }else if (/^\s|\s$/.test(name)||/^\s|\s$/.test(phone)||/^\s|\s$/.test(password)||/^[789]\d{10}$/.test(phone)) {
                 console.log("white")
                 res.render('register', { message: "2"})
-        }else if(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password)!=true){
+        }else if(!/^(?=.*[A-Z])(?=.*[@$!%*?&]).*[A-Za-z\d@$!%*?&]{8,}$/.test(password)){
             res.render('register',{message:'3'});
             console.log("PAssword validation")
         }
@@ -504,9 +504,14 @@ const getOrderDetails = async(req,res) =>{
         const userData = await User.findOne({email:req.session.email})
         const userId = userData._id
         const wishListData = await Wishlist.findOne({userId:userId})
-        const orderDetails = await Order.findOne({_id:orderId}).populate('products.productId').populate('couponId');
-        const category = await Category.find({is_active:true})
+        const orderDetails = await Order.findOne({_id:orderId}).populate('products.productId').populate('couponId').populate('userId');
+        if(orderDetails.userId.email!==req.session.email){
+            res.redirect(`/account?id=${userData._id}`)
+        }else{
+            const category = await Category.find({is_active:true})
             res.render('orderdetails',{orderDetails,userData,category,wishListData})
+        }
+        
         
         
     } catch (error) {
@@ -1625,6 +1630,65 @@ const postAContactRequest = async(req,res,next) =>{
     }
 }
 
+const getAbout = async(req,res) =>{
+    try {
+        const email = req.session.email;
+        const userData = await User.findOne({email:email});
+        let wishListData;
+        let userId;
+        const brandData = await Brand.find({})
+        if(userData){
+            userId = userData._id;
+            wishListData = await Wishlist.findOne({userId:userId})
+        }else{
+            wishListData = null;
+        } 
+        res.render('page-about',{userData,wishListData,brandData})
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+
+const getPrivacyPolicy = async(req,res) =>{
+    try {
+        const email = req.session.email;
+        const userData = await User.findOne({email:email});
+        let wishListData;
+        let userId;
+        const brandData = await Brand.find({})
+        if(userData){
+            userId = userData._id;
+            wishListData = await Wishlist.findOne({userId:userId})
+        }else{
+            wishListData = null;
+        } 
+        
+        res.render('privacy-policy',{userData,wishListData})
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+const getTermsOfServices = async(req,res) =>{
+    try {
+        const email = req.session.email;
+        const userData = await User.findOne({email:email});
+        let wishListData;
+        let userId;
+        const brandData = await Brand.find({})
+        if(userData){
+            userId = userData._id;
+            wishListData = await Wishlist.findOne({userId:userId})
+        }else{
+            wishListData = null;
+        } 
+        
+        res.render('page-terms',{userData,wishListData})
+    } catch (error) {
+        console.log(error)
+    }
+}
 
 
 
@@ -1635,5 +1699,5 @@ module.exports = {loadLogin,loadRegister,insertUser,loadHome,verifyOtp,forgotPas
     commitEditAddressFromCheckout,getProductResults,filterByAscending,filterByDescending,applyCoupon,payByWallet,
     applyReferral,getWishlist,addToWishlist,addToCartFromWishlist,removeFromWishlist,deleteAddress,submitProductReview,
     postReviewReply,getAllProducts,getDataByCategory,filterByAvgRating,checkStockAtCheckout,checkStockAtCart,addToCartFromHome,
-    getContactPage,postAContactRequest
+    getContactPage,postAContactRequest,getAbout,getPrivacyPolicy,getTermsOfServices
 }

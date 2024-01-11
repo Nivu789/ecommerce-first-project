@@ -100,50 +100,59 @@ const cancelOrder = async(req,res) =>{
     try {
         const email = req.session.email;
         const userData = await User.findOne({email:email})
+        const userId = userData._id;
         const orderId = req.query.id;
         console.log(orderId)
         const orderData = await Order.findById({_id:orderId})
         const totalAmount = parseFloat(orderData.totalAmount)
         let arr = []
-        for(i=0;i<orderData.products.length;i++){
-            arr.push(orderData.products[i].quantity) 
-        }
-        console.log(arr)
-
-        for (let i = 0; i < orderData.products.length; i++) {
-            const productId = orderData.products[i].productId;
-            const quantityToAdd = arr[i];
-
-            // Find the product by ID and update the quantity
-            await Product.findByIdAndUpdate(
-                { _id: productId },
-                { $inc: { quantity: +quantityToAdd } }
-            );
-        }
-        await User.findOneAndUpdate({email:email},{$set:{cart:[]}})
-        if(orderData.orderStatus==='Delivered'){
-            await Order.findByIdAndUpdate({_id:orderId},{$set:{orderStatus:"Returned"}})
-        }else{
-            await Order.findByIdAndUpdate({_id:orderId},{$set:{orderStatus:"Cancelled"}})
-        }
-        
-        if(orderData.paymentStatus==="Success"){
-            await User.findOneAndUpdate(
-                { email: email },
-                {
-                    $inc: { wallet: +totalAmount },
-                    $push: {
-                        walletTransaction: {
-                            transactionType: "Credit",
-                            Amount: totalAmount,
-                            time: Date.now()
+        console.log("OrdER id of user",orderData.userId)
+        console.log("user id from session",userId)
+        console.log(typeof orderData.userId, orderData.userId);
+        console.log(typeof userId, userId);
+        const userIdFromOderData = orderData.userId
+       
+            for(i=0;i<orderData.products.length;i++){
+                arr.push(orderData.products[i].quantity) 
+            }
+            console.log(arr)
+    
+            for (let i = 0; i < orderData.products.length; i++) {
+                const productId = orderData.products[i].productId;
+                const quantityToAdd = arr[i];
+    
+                // Find the product by ID and update the quantity
+                await Product.findByIdAndUpdate(
+                    { _id: productId },
+                    { $inc: { quantity: +quantityToAdd } }
+                );
+            }
+            await User.findOneAndUpdate({email:email},{$set:{cart:[]}})
+            if(orderData.orderStatus==='Delivered'){
+                await Order.findByIdAndUpdate({_id:orderId},{$set:{orderStatus:"Returned"}})
+            }else{
+                await Order.findByIdAndUpdate({_id:orderId},{$set:{orderStatus:"Cancelled"}})
+            }
+            
+            if(orderData.paymentStatus==="Success"){
+                await User.findOneAndUpdate(
+                    { email: email },
+                    {
+                        $inc: { wallet: +totalAmount },
+                        $push: {
+                            walletTransaction: {
+                                transactionType: "Credit",
+                                Amount: totalAmount,
+                                time: Date.now()
+                            }
                         }
                     }
-                }
-            );
-        }
+                );
+            }
+            
+            res.redirect(`/account?id=${userData._id}`)
         
-        res.redirect(`/account?id=${userData._id}`)
+        
     } catch (error) {
         console.log(error)
     }

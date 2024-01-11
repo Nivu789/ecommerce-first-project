@@ -1,0 +1,142 @@
+﻿<!DOCTYPE html>
+<html class="no-js" lang="en">
+
+
+<!-- Mirrored from wp.alithemes.com/html/evara/evara-frontend/page-about.html by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 15 Jul 2023 10:10:21 GMT -->
+<head>
+    <meta charset="utf-8">
+    <title>About - Companion</title>
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:title" content="">
+    <meta property="og:type" content="">
+    <meta property="og:url" content="">
+    <meta property="og:image" content="">
+    <!-- Favicon -->
+    <link rel="shortcut icon" type="image/x-icon" href="/assets/imgs/companion-high-resolution-logo-transparent.png">
+    <!-- Template CSS -->
+    <link rel="stylesheet" href="assets/css/maind134.css?v=3.4">
+</head>
+
+<body>
+    
+    <%-include('navbar.ejs')-%>
+
+    <main class="main single-page">
+        <div class="page-header breadcrumb-wrap">
+            <div class="container">
+                <!-- <div class="breadcrumb">
+                    <a href="index.html" rel="nofollow">Home</a>
+                    <span></span> Pages
+                    <span></span> About us
+                </div> -->
+            </div>
+        </div>
+        <section class="section-padding">
+            <div class="container pt-25">
+                <div class="row">
+                    <div class="col-lg-6 align-self-center mb-lg-0 mb-4">
+                        <h6 class="mt-0 mb-15 text-uppercase font-sm text-brand wow fadeIn animated">Our Company</h6>
+                        <h1 class="font-heading mb-40">
+                            We are Building The Destination For Getting Things Done
+                        </h1>
+                        <p>At Companion Bags, we believe in the transformative power of the right bag. Whether you're a globetrotter, a daily commuter, or someone who appreciates the fusion of fashion and functionality, we are here to be your steadfast companion on every journey.</p>
+                        <p>Established with a commitment to crafting high-quality, durable, and stylish bags, Companion Bags stands at the intersection of innovation and timeless design.  </p>
+                    </div>
+                    <div class="col-lg-6">
+                        <img src="/assets/imgs/thought-catalog-UWkCguB75-E-unsplash.jpg" alt="">
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section id="work" class="mt-40 pt-50 pb-50 section-border">
+            <div class="container">
+                <div class="row mb-50">
+                    <div class="col-lg-12 col-md-12 text-center">
+                        <h6 class="mt-0 mb-5 text-uppercase  text-brand font-sm wow fadeIn animated">Companion Bags</h6>
+                        <h2 class="mb-15 text-grey-1 wow fadeIn animated">Our main branches<br> around the world</h2>
+                        <p class="w-50 m-auto text-grey-3 wow fadeIn animated">Every Companion Bag is a product of meticulous craftsmanship and attention to detail. From the selection of premium materials to the thoughtful design process, each piece is a testament to our dedication to excellence.</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 text-center mb-md-0 mb-4">
+                        <img class="btn-shadow-brand hover-up border-radius-10 bg-brand-muted wow fadeIn animated" src="/assets/imgs/bag store 1.webp" alt="">
+                        <h4 class="mt-30 mb-15 wow fadeIn animated">New York, USA</h4>
+                        <p class="text-grey-3 wow fadeIn animated">27 Division St, New York<br>NY 10002, USA</p>
+                    </div>
+                    <div class="col-md-4 text-center mb-md-0 mb-4">
+                        <img class="btn-shadow-brand hover-up border-radius-10 bg-brand-muted wow fadeIn animated" src="/assets/imgs/bag store 2.webp" alt="">
+                        <h4 class="mt-30 mb-15 wow fadeIn animated">Paris, France</h4>
+                        <p class="text-grey-3 wow fadeIn animated">22 Rue des Carmes<br> 75005 Paris</p>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <img class="btn-shadow-brand hover-up border-radius-10 bg-brand-muted wow fadeIn animated" src="/assets/imgs/bag store 3.webp" alt="">
+                        <h4 class="mt-30 mb-15 wow fadeIn animated">Jakarta, Indonesia</h4>
+                        <p class="text-grey-3 wow fadeIn animated">2476 Raya Yogyakarta,<br>89090 Indonesia</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="section-padding">
+            <div class="container pb-25">
+                <h3 class="section-title mb-20 wow fadeIn animated text-center"><span>Featured</span> Brands</h3>
+                <div class="carausel-6-columns-cover position-relative wow fadeIn animated">
+                    <div class="carausel-6-columns text-center" id="carausel-6-columns-3">
+                        <%for(i=0;i<brandData.length;i++){%>
+                            <div class="brand-logo">
+                                <img class="img-grey-hover" src="<%=brandData[i].image[0]%>" alt="">
+                            </div>
+                            <%}%>
+                        
+                        
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <%-include('footer.ejs')-%>
+
+    <!-- Preloader Start -->
+    <div id="preloader-active">
+        <div class="preloader d-flex align-items-center justify-content-center">
+            <div class="preloader-inner position-relative">
+                <div class="text-center">
+                    <h5 class="mb-5">Now Loading</h5>
+                    <div class="loader">
+                        <div class="bar bar1"></div>
+                        <div class="bar bar2"></div>
+                        <div class="bar bar3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Vendor JS-->
+    <script src="assets/js/vendor/modernizr-3.6.0.min.js"></script>
+    <script src="assets/js/vendor/jquery-3.6.0.min.js"></script>
+    <script src="assets/js/vendor/jquery-migrate-3.3.0.min.js"></script>
+    <script src="assets/js/vendor/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/plugins/slick.js"></script>
+    <script src="assets/js/plugins/jquery.syotimer.min.js"></script>
+    <script src="assets/js/plugins/wow.js"></script>
+    <script src="assets/js/plugins/jquery-ui.js"></script>
+    <script src="assets/js/plugins/perfect-scrollbar.js"></script>
+    <script src="assets/js/plugins/magnific-popup.js"></script>
+    <script src="assets/js/plugins/select2.min.js"></script>
+    <script src="assets/js/plugins/waypoints.js"></script>
+    <script src="assets/js/plugins/counterup.js"></script>
+    <script src="assets/js/plugins/jquery.countdown.min.js"></script>
+    <script src="assets/js/plugins/images-loaded.js"></script>
+    <script src="assets/js/plugins/isotope.js"></script>
+    <script src="assets/js/plugins/scrollup.js"></script>
+    <script src="assets/js/plugins/jquery.vticker-min.js"></script>
+    <script src="assets/js/plugins/jquery.theia.sticky.js"></script>
+    <!-- Template  JS -->
+    <script src="assets/js/maind134.js?v=3.4"></script>
+</body>
+
+
+<!-- Mirrored from wp.alithemes.com/html/evara/evara-frontend/page-about.html by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 15 Jul 2023 10:10:46 GMT -->
+</html>

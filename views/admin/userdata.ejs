@@ -5,7 +5,7 @@
 <!-- Mirrored from wp.alithemes.com/html/evara/evara-backend/page-sellers-list.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 01 Aug 2021 15:33:23 GMT -->
 <head>
     <meta charset="utf-8">
-    <title>Evara Dashboard</title>
+    <title>Companion Dashboard</title>
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -14,7 +14,7 @@
     <meta property="og:url" content="">
     <meta property="og:image" content="">
     <!-- Favicon -->
-    <link rel="shortcut icon" type="image/x-icon" href="/admin-assets/imgs/theme/favicon.svg">
+    <link rel="shortcut icon" type="image/x-icon" href="/assets/imgs/companion-high-resolution-logo-transparent.png">
     <!-- Template CSS -->
     <link href="/admin-assets/css/main.css" rel="stylesheet" type="text/css" />
 </head>
@@ -33,7 +33,7 @@
             </div>
             <div class="card mb-4">
                 <header class="card-header">
-                    <div class="row gx-3">
+                    <!-- <div class="row gx-3">
                         <div class="col-lg-4 col-md-6 me-auto">
                             <input type="text" placeholder="Search..." class="form-control">
                         </div>
@@ -52,7 +52,7 @@
                                 <option>Show 40</option>
                             </select>
                         </div>
-                    </div>
+                    </div> -->
                 </header> <!-- card-header end// -->
                 <div class="card-body">
                     <div class="table-responsive">
@@ -60,10 +60,10 @@
                             <thead>
                                 <tr>
                                     <th>User</th>
-                                    <th>Email</th>
                                     <th>Status</th>
                                     <th>Registered</th>
-                                    <th class="text-end"> Action </th>
+                                    <th>Action</th>
+                                    <!-- <th class="text-end"> Action </th> -->
                                 </tr>
                             </thead>
                             <tbody>
@@ -88,15 +88,15 @@
                                                 <%}%>
                                         
                                         <td>04.07.2020</td>
-                                        <td class="text-end">
-                                            <a href="/admin/userdetails?id=<%=userData[i]._id%>" class="btn btn-sm btn-brand rounded font-sm mt-15">View details</a>
-                                        </td>
+                                        <!-- <td class="text-end">
+                                             <a href="/admin/userdetails?id=<%=userData[i]._id%>" class="btn btn-sm btn-brand rounded font-sm mt-15">View details</a> -->
+                                        <!-- </td> -->
                                         <%if(userData[i].is_active==true){%>
-                                            <td class="text-end">
+                                            <td>
                                                 <a href="/admin/blockuser?id=<%=userData[i]._id%>" class="btn btn-sm btn-danger rounded font-sm mt-15">Block</a>
                                             </td>
                                             <%}else{%>
-                                                <td class="text-end">
+                                                <td >
                                                     <a href="/admin/unblockuser?id=<%=userData[i]._id%>" class="btn btn-sm btn-success rounded font-sm mt-15">Unblock</a>
                                                 </td>
                                                 <%}%>
@@ -124,7 +124,7 @@
             </div> -->
         </section> <!-- content-main end// -->
         <footer class="main-footer font-xs">
-            <div class="row pb-30 pt-15">
+            <!-- <div class="row pb-30 pt-15">
                 <div class="col-sm-6">
                     <script data-cfasync="false" src="../../../cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
                     document.write(new Date().getFullYear())
@@ -135,7 +135,7 @@
                         All rights reserved
                     </div>
                 </div>
-            </div>
+            </div> -->
         </footer>
     </main>
     <script src="/admin-assets/js/vendors/jquery-3.6.0.min.js"></script>

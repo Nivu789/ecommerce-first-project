@@ -10,6 +10,7 @@ const fse = require('fs-extra');
 const Banner = require('../models/bannerModel')
 const DealOfDay = require('../models/dealOfDay')
 const Contact = require('../models/contactModel')
+const moment = require('moment')
 
 //hello
 const getLogin = async (req, res) => {
@@ -42,7 +43,12 @@ const getDashboard = async (req, res) => {
             }
         ]);
 
+        let arr = [];
         const fullOrderData = await Order.find({}).sort({orderDate:-1}).populate('userId')
+        for(i=0;i<fullOrderData.length;i++){
+            arr.push(moment(fullOrderData[i].orderDate).format('MMMM Do YYYY, h:mm:ss a'))
+        }
+        console.log(arr)
 
         const orderAmount = await Order.aggregate([
             {
@@ -183,7 +189,7 @@ const getDashboard = async (req, res) => {
         const categoryValuesJson = JSON.stringify(categoryData.map(item => item.totalProducts));
       
         res.render('dashboard', { totalOrdersJson,totalProductsJson ,totalRegisterJson, categoryLabelsJson, categoryValuesJson,
-            totalAmount,totalOrders,totalProducts,totalUsers,fullOrderData,categoryNames,orderCounts});
+            totalAmount,totalOrders,totalProducts,totalUsers,fullOrderData,categoryNames,orderCounts,arr});
     } catch (error) {
         console.log(error);
         res.status(500).send('Internal Server Error');

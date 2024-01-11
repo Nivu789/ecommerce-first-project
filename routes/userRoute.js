@@ -155,4 +155,10 @@ userRoute.get('/contact',userAuth.isLogin,userFunctions.getContactPage)
 
 userRoute.post('/post-contact',userFunctions.postAContactRequest)
 
+userRoute.get('/about',userFunctions.getAbout)
+
+userRoute.get('/privacy-policy',userFunctions.getPrivacyPolicy)
+
+userRoute.get('/terms-of-services',userFunctions.getTermsOfServices)
+
 module.exports = userRoute;

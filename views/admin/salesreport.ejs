@@ -5,7 +5,7 @@
 <!-- Mirrored from wp.alithemes.com/html/evara/evara-backend/page-transactions-1.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 01 Aug 2021 15:33:32 GMT -->
 <head>
     <meta charset="utf-8">
-    <title>Evara Dashboard</title>
+    <title>Sales Report - Companion</title>
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -14,7 +14,7 @@
     <meta property="og:url" content="">
     <meta property="og:image" content="">
     <!-- Favicon -->
-    <link rel="shortcut icon" type="image/x-icon" href="/admin-assets/imgs/theme/favicon.svg">
+    <link rel="shortcut icon" type="image/x-icon" href="/assets/imgs/companion-high-resolution-logo-transparent.png">
     <!-- Template CSS -->
     <link href="/admin-assets/css/main.css" rel="stylesheet" type="text/css" />
 </head>
@@ -27,7 +27,10 @@
         <section class="content-main">
             <div class="content-header">
                 <h2 class="content-title">Transactions </h2>
+                <button class="btn btn-primary" onclick="printReport()">Print Report</button>
             </div>
+            
+            
             <div class="card">
                 <div class="card-body">
                     <div class="row">
@@ -36,7 +39,7 @@
                                 <form method="post" action="/admin/filter-report">
                                 <div class="row">
                                     <div class="col-lg-3 col-6 me-auto">
-                                        <input type="text" name="search" placeholder="Search..." class="form-control">
+                                        <input type="text" name="search" placeholder="Search..." class="form-control  hidden-on-print">
                                     </div>
                                     <div class="col-lg-3 col-6 me-auto">
                                         <label for="">From</label>
@@ -54,6 +57,39 @@
                                 </div>
                             </form>
                             </header> <!-- card-header end// -->
+
+                            <div class="table-responsive">
+                                <table class="table table-hover table-primary" style="border: 2px solid black;">
+                                    <thead>
+                                        <tr>
+                                            <th>Total No.of orders</th>
+                                            <th>Total No. of customers</th>
+                                            <th>Total No.of online payments </th>
+                                            <th>total No. of cash on delivery</th>
+                                            <th> Total No. of orders cancelled </th>
+                                            <th> Total Transaction </th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody style="border: 1px solid black;">
+                                        <tr>
+                                                <%if(locals.orderData){%>
+                                                    <td class="text-center"><%=orderData.length%></td>
+                                                    <%}else{%>
+                                                        <td class="text-center"><%=filteredData.length%></td>
+                                                    <%}%>
+                                                    <td class="text-center"><%=distinctUserLength%></td>
+                                                    <td class="text-center"><%=onlinePayments%></td>
+                                                    <td class="text-center"><%=cashPayments%></td>
+                                                    <td class="text-center"><%=cancelledOrders%></td>
+                                                    <td class="text-center">₹<%=totalAmount%></td>
+                                        </tr>
+                                    </tbody>
+
+                                </table>
+
+                            </div>
+
                             <div class="table-responsive">
                                 <table class="table table-hover">
                                     <thead>
@@ -95,7 +131,7 @@
                                 </table>
                             </div> <!-- table-responsive.// -->
                         </div> <!-- col end// -->
-                        <aside class="col-lg-3">
+                        <!-- <aside class="col-lg-3">
                             <div class="box bg-light">
                                 <h3 class="text-center">Sales Report</h3>
                             </div>
@@ -129,11 +165,16 @@
                                 <h4 class="text-center">Total transaction</h4>
                                 <h3 class="text-center">₹<%=totalAmount%></h3>
                             </div>
-                        </aside> <!-- col end// -->
+                        </aside> col end// -->
                     </div> <!-- row end// -->
                 </div> <!-- card-body // -->
             </div> <!-- card end// -->
-            <div class="pagination-area mt-30 mb-50">
+            <script>
+                function printReport(){
+                    window.print()
+                }
+            </script>
+            <!-- <div class="pagination-area mt-30 mb-50">
                 <nav aria-label="Page navigation example">
                     <ul class="pagination justify-content-start">
                         <li class="page-item active"><a class="page-link" href="#">01</a></li>
@@ -144,10 +185,10 @@
                         <li class="page-item"><a class="page-link" href="#"><i class="material-icons md-chevron_right"></i></a></li>
                     </ul>
                 </nav>
-            </div>
+            </div> -->
         </section>
         <footer class="main-footer font-xs">
-            <div class="row pb-30 pt-15">
+            <!-- <div class="row pb-30 pt-15">
                 <div class="col-sm-6">
                     <script>
                     document.write(new Date().getFullYear())
@@ -158,7 +199,7 @@
                         All rights reserved
                     </div>
                 </div>
-            </div>
+            </div> -->
         </footer>
     </main>
     <script src="/admin-assets/js/vendors/jquery-3.6.0.min.js"></script>

@@ -3525,6 +3525,7 @@ table .product-thumbnail img {
   position: relative;
   display: inline-block;
   border: 1px solid #cce7d0;
+  padding-bottom: 20px;
 }
 
 .product-cart-wrap .product-action-1 button.small, .product-cart-wrap .product-action-1 a.action-btn.small {

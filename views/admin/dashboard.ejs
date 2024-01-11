@@ -15,10 +15,11 @@
     <meta property="og:url" content="">
     <meta property="og:image" content="">
     <!-- Favicon -->
-    <link rel="shortcut icon" type="image/x-icon" href="/admin-assets/imgs/theme/favicon.svg">
+    <link rel="shortcut icon" type="image/x-icon" href="/assets/imgs/companion-high-resolution-logo-transparent.png">
     <!-- Template CSS -->
     <link href="/admin-assets/css/main.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
 </head>
 
 <body>
@@ -166,7 +167,7 @@
                 <div class="col-xl-4 col-lg-12">
                     <div class="card mb-4">
                         <article class="card-body">
-                            <h5 class="card-title">Total Products Sold</h5>
+                            <h5 class="card-title">Total Products Sold In Each Category</h5>
                             <canvas id="myChart2" style="width:100%;max-width:600px"></canvas>
                         </article>
                     </div>
@@ -302,7 +303,7 @@
                                             <td><%=fullOrderData[i].userId.name%></td>
                                             
                                             <td>
-                                                <%=fullOrderData[i].orderDate%>
+                                                <%=arr[i]%>
                                             </td>
                                             
                                             <td>
@@ -321,7 +322,7 @@
                                                 <%=fullOrderData[i].paymentMethod%>
                                             </td>
                                             <td>
-                                                <a href="#" class="btn btn-xs"> View details</a>
+                                                <a href="/admin/orderdetails?id=<%=fullOrderData[i]._id%>" class="btn btn-xs"> View details</a>
                                             </td>
                                         </tr>
                                         <%}%>
@@ -348,7 +349,7 @@
             </div> -->
         </section> <!-- content-main end// -->
         <footer class="main-footer font-xs">
-            <div class="row pb-30 pt-15">
+            <!-- <div class="row pb-30 pt-15">
                 <div class="col-sm-6">
                     <script>
                         document.write(new Date().getFullYear())
@@ -359,7 +360,7 @@
                         All rights reserved
                     </div>
                 </div>
-            </div>
+            </div> -->
         </footer>
     </main>
     <script src="/admin-assets/js/vendors/jquery-3.6.0.min.js"></script>
