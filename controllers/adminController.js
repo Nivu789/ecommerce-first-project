@@ -392,7 +392,7 @@ const commitProductUpdate = async (req, res) => {
                 await Product.findByIdAndUpdate({ _id: id }, {
                     $set: {
                         productName: req.body.productName, brand: req.body.brand, description: req.body.description,
-                        regularPrice: req.body.regularPrice, salePrice: req.body.salePrice, categoryid: req.body.categoryId
+                        regularPrice: req.body.regularPrice, salePrice: req.body.salePrice, categoryid: req.body.categoryId,quantity:req.body.quantity
                     }
                 })
     
