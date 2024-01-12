@@ -107,19 +107,19 @@ adminRoute.delete('/deleteImage/:productId/:index',adminAuth.isLogin, async (req
 
   adminRoute.post('/editbrand',upload.array('image',1),adminFunctions.commitEditBrand)
 
-  adminRoute.get('/productoffers',adminFunctions.getProductOffers)
+  adminRoute.get('/productoffers',adminAuth.isLogin,adminFunctions.getProductOffers)
 
   adminRoute.post('/saveproductoffer',adminFunctions.commitProductOffers)
 
-  adminRoute.get('/categoryoffers',adminFunctions.getCategoryOffers)
+  adminRoute.get('/categoryoffers',adminAuth.isLogin,adminFunctions.getCategoryOffers)
 
   adminRoute.post('/savecategoryoffers',adminFunctions.commitCategoryOffers)
 
-  adminRoute.get('/coupons',adminFunctions.getAllCoupons)
+  adminRoute.get('/coupons',adminAuth.isLogin,adminFunctions.getAllCoupons)
 
   adminRoute.post('/createcoupon',adminFunctions.createCoupon)
 
-  adminRoute.get('/editcoupon',adminFunctions.editCoupon)
+  adminRoute.get('/editcoupon',adminAuth.isLogin,adminFunctions.editCoupon)
 
   adminRoute.post('/saveeditedcoupon',adminFunctions.saveEditedCoupon)
 
@@ -129,7 +129,7 @@ adminRoute.delete('/deleteImage/:productId/:index',adminAuth.isLogin, async (req
 
   adminRoute.post('/commit-edit-category-offer',adminFunctions.commitEditCategoryOffers)
 
-  adminRoute.get('/banner-management',adminFunctions.getBannerManagement)
+  adminRoute.get('/banner-management',adminAuth.isLogin,adminFunctions.getBannerManagement)
 
   adminRoute.post('/create-banner',upload.array('image', 1),adminFunctions.addBanner)
 
@@ -139,7 +139,7 @@ adminRoute.delete('/deleteImage/:productId/:index',adminAuth.isLogin, async (req
 
   adminRoute.post('/delete-product-offer',adminFunctions.deleteProductOffer)
 
-  adminRoute.get('/salesreport',adminFunctions.getSalesReport)
+  adminRoute.get('/salesreport',adminAuth.isLogin,adminFunctions.getSalesReport)
 
   adminRoute.post('/filter-report',adminFunctions.filterReport)
 

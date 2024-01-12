@@ -174,11 +174,28 @@
                                                                                 to Cart</a>
                                                                             <%}%>
 
-                                                                                <div class="rating-result" title="90%">
-                                                                                    <span>
-                                                                                        <span>90%</span>
-                                                                                    </span>
-                                                                                </div>
+                                                                            <div class="rate">
+                                                                                <input type="radio"
+                                                                                    <%=productData[i].avgRating===5
+                                                                                    ? 'checked' : '' %> disabled/>
+                                                                                <label for="star5" title="text">5 stars</label>
+                                                                                <input type="radio"
+                                                                                    <%=productData[i].avgRating===4
+                                                                                    ? 'checked' : '' %> disabled/>
+                                                                                <label for="star4" title="text">4 stars</label>
+                                                                                <input type="radio"
+                                                                                    <%=productData[i].avgRating===3
+                                                                                    ? 'checked' : '' %> disabled/>
+                                                                                <label for="star3" title="text">3 stars</label>
+                                                                                <input type="radio"
+                                                                                    <%=productData[i].avgRating===2
+                                                                                    ? 'checked' : '' %> disabled/>
+                                                                                <label for="star2" title="text">2 stars</label>
+                                                                                <input type="radio"
+                                                                                    <%=productData[i].avgRating===1
+                                                                                    ? 'checked' : '' %> disabled/>
+                                                                                <label for="star1" title="text">1 star</label>
+                                                                            </div>
                                                     </div>
                                             </div>
                                         </div>

@@ -1,9 +1,9 @@
 const express = require('express');
 const app = express();
 const path = require('path')
-
+require('dotenv').config()
 const mongoose = require('mongoose');
-mongoose.connect("mongodb+srv://nivuyt789:nivedneha@ecommerce.z6wlh5z.mongodb.net/Companion")
+mongoose.connect(process.env.CONNECTION_STRING)
 const userRoute = require('./routes/userRoute')
 const adminRoute = require('./routes/adminRoute')
 app.use(express.urlencoded({extended:true}))
